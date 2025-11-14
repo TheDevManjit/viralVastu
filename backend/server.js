@@ -2,6 +2,7 @@ import Express from "express"
 import "dotenv/config"
 import connectDB from "./database/db.js"
 import userRoute from "./routes/userRoute.js"
+import productRoute from "./routes/productRoute.js"
 import { errorHandler } from "./middleware/errorHandler.js"
 import cors from 'cors'
 
@@ -22,6 +23,8 @@ app.use(cors({
 
 
 app.use("/api/v1/user",userRoute)
+app.use("/api/v1/product",productRoute)
+
 app.use(errorHandler)
 
 
