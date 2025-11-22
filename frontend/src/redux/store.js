@@ -1,8 +1,8 @@
 import userSlice from './userSlice.js'
-
+import productSlice from './productSlice.js'
 import { combineReducers, configureStore } from '@reduxjs/toolkit'
 import {
-  
+
   persistReducer,
   FLUSH,
   REHYDRATE,
@@ -21,7 +21,8 @@ const persistConfig = {
 
 
 const rootReducer = combineReducers({
-    user:userSlice
+  user: userSlice,
+  products: productSlice
 })
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)

@@ -6,7 +6,22 @@ const addProduct = async (req, res) => {
 
     try {
 
-        const { productName, productDescription, productPrice, category, brand, offers, tranding } = req.body
+      //  const { productName, productDescription, productPrice, category, brand, offers, tranding } = req.body
+
+        const {
+         
+            productName,
+            productDescription,
+            productPrice,
+            ProductOriginalPrice,
+            rating,
+            reviews,
+            badge,
+            category,
+            brand,
+            offers,
+            trending
+        } = req.body;
 
         if (!productName || !productDescription || !productPrice || !category) {
 
@@ -42,12 +57,16 @@ const addProduct = async (req, res) => {
         const newProduct = await Product.create({
             productName,
             productDescription,
-            productImg,
-            productPrice,  // array of objects
+            productImg, // Array of Images
+            productPrice,
+            ProductOriginalPrice,
+            rating,
+            reviews,
+            badge,
             category,
             brand,
             offers,
-            tranding
+            trending
         })
 
         res.status(200).json({
@@ -124,8 +143,8 @@ const updateProduct = async (req, res) => {
     try {
 
         const { id } = req.params
-         const { productName,productDescription,productPrice,category,brand,offers,tranding,existingImage } = req.body
-      
+        const { productName, productDescription, productPrice, category, brand, offers, tranding, existingImage } = req.body
+
 
         const product = await Product.findById(id)
         if (!product) {
@@ -137,11 +156,11 @@ const updateProduct = async (req, res) => {
 
         let updatedImages = []
 
-        if (existingImage ) {
+        if (existingImage) {
             const keepIds = JSON.parse(existingImage);
             updatedImages = product.productImg.filter(img => keepIds.includes(img.public_id));
 
-           
+
 
             // delete removed images from cloudinary
 
@@ -150,11 +169,11 @@ const updateProduct = async (req, res) => {
                 await cloudinary.uploader.destroy(img.public_id)
             }
 
-        }else{
+        } else {
 
             updatedImages = product.productImg  // keep all images if none specified
         }
-   
+
         if (req.files && req.files.length > 0) {
             for (const file of req.files) {
                 const fileUri = getDataUri(file)
@@ -195,31 +214,31 @@ const updateProduct = async (req, res) => {
 }
 
 const deleteProduct = async (req, res) => {
-    try {   
+    try {
         const { id } = req.params
 
-        const product = await Product.findById(id)  
+        const product = await Product.findById(id)
         if (!product) {
             return res.status(404).json({
-                success: false, 
+                success: false,
                 message: "Product not found"
             })
-        }   
+        }
         // delete images from cloudinary
         for (const img of product.productImg) {
             await cloudinary.uploader.destroy(img.public_id)
-        }  
+        }
 
         await product.deleteOne()
 
         res.status(200).json({
             success: true,
             message: "Product deleted successfully"
-        })  
+        })
 
     } catch (error) {
         return res.status(400).json({
-            success: false, 
+            success: false,
             message: error.message
         })
     }
@@ -230,4 +249,4 @@ const deleteProduct = async (req, res) => {
 
 
 
-export { addProduct, getAllProducts, getProductById,updateProduct,deleteProduct    }
+export { addProduct, getAllProducts, getProductById, updateProduct, deleteProduct }

@@ -124,7 +124,7 @@ export default function Profile() {
 
                         </CardHeader>
                         <CardContent>
-                            <div className="grid grid-cols-3   ">
+                            <div className="lg:grid lg:grid-cols-3 flex flex-col gap-4  ">
                                 <div className=" w-32">
                                     <img src={updateUser?.profilePic || profileLogo} alt="" className="full h-32 rounded-full object-cover border-4" />
                                     <Label className="mt-4 cursor-pointer bg-green-400 text-center flex justify-center text-gray-800  py-2  hover:bg-green-600 rounded"> Change Picture

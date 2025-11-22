@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Menu, X, ShoppingCart, UserRound, Home } from "lucide-react";
 import { Input } from "./ui/input";
@@ -11,10 +11,14 @@ import { toast } from "sonner";
 
 const Navbar = () => {
     const [open, setOpen] = useState(false);
+    const [search, setSearch] = useState("");
+    const [suggestions, setSuggestions] = useState([]);
+    const [allProducts, setAllProducts] = useState([]);
+
     const { user } = useSelector(store => store.user)
     const dispatch = useDispatch()
     const accessToken = localStorage.getItem('accessToken')
-    const naviagte = useNavigate()
+    const navigate = useNavigate()
 
 
     const logoutHandler = async () => {
@@ -30,13 +34,46 @@ const Navbar = () => {
                 dispatch(setUser(null))
                 toast.success(res.data.message)
                 localStorage.removeItem('accessToken');
-                naviagte("/")
+                navigate("/")
             }
         } catch (error) {
             console.log(error)
             toast.error(error.response.data.message)
         }
     }
+
+    useEffect(() => {
+        const loadProducts = async () => {
+            const res = await axios.get("http://localhost:5000/api/v1/product/allProducts");
+            setAllProducts(res.data.products);
+        };
+        loadProducts();
+    }, []);
+
+
+    useEffect(() => {
+        if (!search.trim()) {
+            setSuggestions([]);
+            return;
+        }
+
+        const filtered = allProducts.filter((p) =>
+            p.productName.toLowerCase().includes(search.toLowerCase()) ||
+            p.brand.toLowerCase().includes(search.toLowerCase()) ||
+            p.category.toLowerCase().includes(search.toLowerCase())
+        );
+
+        setSuggestions(filtered.slice(0, 7)); // top 7 results
+    }, [search, allProducts]);
+
+    // 🔥 When clicking suggestion
+    const handleSelectSuggestion = (value) => {
+        navigate(`/product?search=${value}`);
+        setSearch("");
+        setSuggestions([]);
+    };
+
+
 
     return (
         <nav className="w-full bg-white/90 backdrop-blur-sm border-b border-green-100 fixed top-0 left-0 z-50 shadow-sm">
@@ -52,12 +89,32 @@ const Navbar = () => {
                     </Link>
 
                     {/* Search Bar (hide on mobile) */}
-                    <div className="hidden md:flex w-[300px] lg:w-[600px] relative">
+                    <div className=" md:flex md:w-[300px] lg:w-[600px] relative w-[70vh] me-4">
                         <Input
                             className="pl-10 pr-3 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:outline-none w-full"
                             placeholder="Search for products..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
                         />
                         <Search className="absolute left-3 top-2.5 text-gray-400 w-5 h-5" />
+
+                        {/* 🔥 Suggestions Dropdown */}
+                        {suggestions.length > 0 && (
+                            <div className="absolute bg-white shadow-lg border rounded-md w-full mt-10 max-h-80 overflow-y-auto z-50">
+                                {suggestions.map((item) => (
+                                    <div
+                                        key={item._id}
+                                        onClick={() => handleSelectSuggestion(item.productName)}
+                                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                    >
+                                        <p className="font-medium">{item.productName || "manjit"}</p>
+                                        <p className="text-xs text-gray-500">
+                                            {item.brand} • {item.category}
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     {/* Desktop Nav */}
@@ -65,7 +122,7 @@ const Navbar = () => {
 
 
                         <Link
-                            to="/dashboard"
+                            to="/product"
                             className="text-gray-700 hover:text-green-600 border border-transparent transition font-medium hover:border hover:border-[#676D6C]  rounded p-1  "
                         >
                             Products
@@ -93,9 +150,9 @@ const Navbar = () => {
                                 >
                                     <ul className="py-2 text-sm text-gray-700">
                                         <Link to={`/profile/${user._id}`}>
-                                         <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">My Profile</li>
+                                            <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">My Profile</li>
                                         </Link>
-                                       
+
                                         <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Orders</li>
                                     </ul>
                                 </div>
@@ -106,8 +163,8 @@ const Navbar = () => {
 
                             :
                             <Link
-                            to={'login'}
-                                
+                                to={'login'}
+
                                 className="flex items-center gap-2 text-gray-700 hover:text-green-600 border border-transparent transition font-medium hover:border hover:border-[#676D6C]  rounded p-1"
                             >
                                 <UserRound size={18} />
