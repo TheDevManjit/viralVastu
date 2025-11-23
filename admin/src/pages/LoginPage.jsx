@@ -25,7 +25,7 @@ import { setUser } from "@/redux/userSlice";
 
 
 
-export default function loginPage() {
+export default function LoginPage() {
 
     const navigate = useNavigate()
     const [showPassword, setShowPassword] = useState(false)
@@ -55,7 +55,7 @@ export default function loginPage() {
         console.log(formData)
         try {
             setLoading(true)
-            const res = await axios.post('http://localhost:5000/api/v1/user/logIn', formData, {
+            const res = await axios.post('http://localhost:5000/api/v1/admin/admin-login', formData, {
                 headers: {
                     "Content-Type": "application/json"
                 }
@@ -64,7 +64,7 @@ export default function loginPage() {
             if (res.data.success) {
                 dispatch(setUser(res.data.user))
                 localStorage.setItem('accessToken',res.data.accessToken)
-                navigate("/")
+                navigate("/dashboard")
                 toast.success(res.data.message)
             }
 
@@ -134,8 +134,7 @@ export default function loginPage() {
                     <Button type="submit" className="w-full cursor-pointer bg-green-700 hover:bg-green-500" onClick={handleSubmit}>
                        {loading ?<><Loader2 className="h-4 w-4 animate-spin" /> Loading </> : "Log In"} 
                     </Button>
-                    <p className=" text-gray-700 text-sm"> Don't Have An Account? <Link to={"/signup"} className="hover:underline cursor-pointer text-green-500">Register Here</Link> </p>
-
+                   
                 </CardFooter>
             </Card>
         </div>
