@@ -9,7 +9,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { setUser } from "@/redux/userSlice";
 import { toast } from "sonner";
 
-const Navbar = () => {
+const Navbar = ({classes}) => {
     const [open, setOpen] = useState(false);
     const [search, setSearch] = useState("");
     const [suggestions, setSuggestions] = useState([]);
@@ -34,7 +34,7 @@ const Navbar = () => {
                 dispatch(setUser(null))
                 toast.success(res.data.message)
                 localStorage.removeItem('accessToken');
-                navigate("/")
+                navigate("/login")
             }
         } catch (error) {
             console.log(error)
@@ -76,7 +76,7 @@ const Navbar = () => {
 
 
     return (
-        <nav className="w-full bg-white/90 backdrop-blur-sm border-b border-green-100 fixed top-0 left-0 z-50 shadow-sm">
+        <nav className={`${classes} bg-white/90 backdrop-blur-sm border-b border-green-100   shadow-sm`}>
             <div className="max-w-[1350px] mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-16">
                     {/* Logo */}

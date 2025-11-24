@@ -1,31 +1,46 @@
-import { Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import Dashboard from "./pages/Dasboard";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Products from "./pages/Products";
+import Orders from "./pages/Orders";
+import Users from "./pages/Users";
+import WebSettings from "./pages/WebSettings";
+import Text from "./pages/Text";
 import './App.css'
+import { createBrowserRouter, RouterProvider, Route, Routes, createRoutesFromElements } from 'react-router-dom'
+
+
+const router = createBrowserRouter(
+  createRoutesFromElements(
+    <>
+       
+       <Route path="/login" element={<LoginPage />} />
+
+      {/* Protected Routes */}
+      <Route element={<ProtectedRoute />}>
+        <Route path="/" element={<Dashboard />}>
+          <Route index element={<Text />} />
+          <Route path="orders" element={<Orders />} />
+          <Route path="products" element={<Products />} />
+          <Route path="users" element={<Users />} />
+          <Route path="settings" element={<WebSettings />} />
+        </Route>
+      </Route>
+    </>
+  )
+);
+
 
 function App() {
+
+
   return (
-    <Routes>
+    <>
 
-      {/* Default route → login */}
-      <Route path="/" element={<Navigate to="/login" />} />
+      <RouterProvider router={router} />
 
-      {/* Login Page */}
-      <Route path="/login" element={<LoginPage />} />
-
-      {/* PROTECTED ROUTE for dashboard */}
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        }
-      />
-
-    </Routes>
-  );
+    </>
+  )
 }
 
-export default App;
+export default App

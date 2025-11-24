@@ -64,7 +64,7 @@ export default function LoginPage() {
             if (res.data.success) {
                 dispatch(setUser(res.data.user))
                 localStorage.setItem('accessToken',res.data.accessToken)
-                navigate("/dashboard")
+                navigate("/")
                 toast.success(res.data.message)
             }
 
