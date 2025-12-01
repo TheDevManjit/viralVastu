@@ -1,13 +1,28 @@
 import React from "react";
 import { Button } from "./ui/button";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { EffectCoverflow, Autoplay } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/effect-flip";
+import "swiper/css/pagination";
+import "swiper/css/effect-coverflow";
 
 const Hero = () => {
+
+    const images = [
+        "/img1.jpeg",
+        "/img2.jpeg",
+        "/img3.webp",
+
+    ];
 
     return (
         <>
 
-            <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16 ">
-                <div className="max-w-7xl mx-auto px-4">
+            <section className=" mt-20 bg-blue-600 py-12 rounded-b-3xl shadow-blue-200/50 bg-gradient-to-br from-blue-300 via-blue-400 to-indigo-700 lg:h-[500px]">
+              
+
+                <div className="max-w-7xl mx-auto px-4 ">
                     <div className="grid md:grid-cols-2 gap-8 justify-around items-center">
 
                         <div>
@@ -22,11 +37,39 @@ const Hero = () => {
                         </div>
 
                         <div className="relative">
-                            <img src="mobile.svg" alt="" width={500} height={400} className="rounded-lg shadow-2xl mt-5 " />
+                            <Swiper
+                                effect="coverflow"
+                                grabCursor={true}
+                                centeredSlides={true}
+                                slidesPerView="auto"
+                                loop={true}
+                                autoplay={{
+                                    delay: 3000,
+                                    disableOnInteraction: false,
+                                }}
+                                coverflowEffect={{
+                                    rotate: 50,
+                                    stretch: 0,
+                                    depth: 100,
+                                    modifier: 1,
+                                    slideShadows: true,
+                                }}
+                                modules={[EffectCoverflow, Autoplay]}
+                                className="mySwiper w-full h-[400px]"
+                            >
+                                {images.map((img, i) => (
+                                    <SwiperSlide key={i} className="w-[300px] h-[400px]">
+                                        <img
+                                            src={img}
+                                            alt={`Slide ${i}`}
+                                            className=" h-[400px] w-full object-cover rounded-2xl"
+                                        />
+                                    </SwiperSlide>
+                                ))}
+                            </Swiper>
                         </div>
                     </div>
                 </div>
-
 
             </section>
 

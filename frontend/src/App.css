@@ -39,6 +39,16 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-skybrand-50:  #eefaff;
+  --color-skybrand-100: #d6f2ff;
+  --color-skybrand-200: #ade5ff;
+  --color-skybrand-300: #7bd6ff;
+  --color-skybrand-400: #52caff;
+  --color-skybrand-500: #37c0ff;
+  --color-skybrand-600: #1e9edb;
+  --color-skybrand-700: #167eb0;
+  --color-skybrand-800: #12658d;
+  --color-skybrand-900: #0f526f;
 }
 
 :root {
@@ -109,6 +119,9 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
 }
+
+
+
 
 @layer base {
   * {

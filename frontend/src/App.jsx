@@ -1,7 +1,7 @@
 import React from 'react'
 import './App.css'
 
-import { createBrowserRouter,RouterProvider,Route,createRoutesFromElements} from 'react-router-dom'
+import { createBrowserRouter, RouterProvider, Route, createRoutesFromElements } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import SignupPage from './pages/SignupPage'
 import LoginPage from './pages/LoginPage'
@@ -10,6 +10,8 @@ import EmailVarificationPage from './pages/EmailVarificationPage'
 import Profile from './components/Profile'
 import Layout from './Layout'
 import ProductsPage from './pages/ProductsPage'
+import ProductPage from './pages/ProductPage'
+import CartPage from './pages/CartPage.jsx'
 
 
 
@@ -53,34 +55,38 @@ import ProductsPage from './pages/ProductsPage'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
-   
+
     <Route path='/' element={<Layout />}>
 
-     <Route path='' element={<HomePage />}/>
-     <Route path='/signup' element={<SignupPage />}/>
-     <Route path='/login' element={<LoginPage />}/>
-     <Route path='/varify' element={<VerifyEmailSend />}/>
-     <Route path='/varify/:token' element={<EmailVarificationPage />}/>
-     <Route path='/varify/:token' element={<EmailVarificationPage />}/>
-     <Route path='/profile/:userId' element={<Profile />}/>
-     <Route path='/product/' element={<ProductsPage />}/>
-
+      <Route path='' element={<HomePage />} />
+      <Route path='/signup' element={<SignupPage />} />
+      <Route path='/login' element={<LoginPage />} />
+      <Route path='/varify' element={<VerifyEmailSend />} />
+      <Route path='/varify/:token' element={<EmailVarificationPage />} />
+      <Route path='/varify/:token' element={<EmailVarificationPage />} />
+      <Route path='/profile/:userId' element={<Profile />} />
+      <Route path='/product/' element={<ProductsPage />} />
+      <Route path='/product/:id' element={<ProductPage />} />
+      <Route path='/cart' element={<CartPage />} />
+      <Route path='*' element={<h1 className='text-center mt-20 text-3xl'>404 Not Found</h1>} />
 
     </Route>
 
   )
-   
+
 )
 
 function App() {
-  
+
 
   return (
-   <>
-   
-   <RouterProvider router = {router} />
+    <>
+      <div className='overflow-y-scroll'>
+        <RouterProvider router={router} />
+      </div>
 
-   </>
+
+    </>
   )
 }
 

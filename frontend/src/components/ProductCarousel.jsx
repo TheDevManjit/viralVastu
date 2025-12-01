@@ -12,18 +12,24 @@ import {
 export default function ProductCarousel({ productImg }) {
 
   return (
-    <Carousel className="w-full max-w-xs group">
+    <Carousel className=" group p-0 m-0 shadow-none " 
+    
+    opts={{
+      loop:true
+    }}
+
+    >
       <CarouselContent>
 
         {productImg?.map((img, index) => (
           <CarouselItem key={index}>
             <div className="p-1">
-              <Card>
-                <CardContent className="flex aspect-square items-center justify-center p-6">
+              <Card className="  p-0! m-0! border-none! shadow-none ">
+                <CardContent className="flex aspect-square items-center justify-center 100 p-0! m-0! overflow-hidden">
                   <img
                     src={img.url}
                     alt={`Product image ${index + 1}`}
-                    className="object-cover group-hover:scale-110 transition-transform duration-500"
+                    className="object-cover  transition-transform duration-500 "
                   />
                 </CardContent>
               </Card>
@@ -33,8 +39,7 @@ export default function ProductCarousel({ productImg }) {
 
       </CarouselContent>
 
-      <CarouselPrevious />
-      <CarouselNext />
+      
     </Carousel>
   );
 }

@@ -4,7 +4,7 @@ const Features = () => {
 
     return (
 
-        <section className="py-12 bg-muted/50">
+        <section className="py-12 bg-muted/50 mt-15">
 
 
             <div className="max-w-7xl mx-auto px-4">

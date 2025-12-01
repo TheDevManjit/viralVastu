@@ -1,19 +1,12 @@
 import FilterSlider from "@/components/FilterSlider";
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import ProductCard from "@/components/ProductCard";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { getAllProducts } from "../api/productApi.js";
 import { useSelector, useDispatch } from "react-redux";
 import { setProducts } from "@/redux/productSlice.js";
 import { useLocation } from "react-router-dom";
+import axios from "axios";
+
 
 
 
@@ -28,103 +21,160 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [priceRange, setPriceRange] = useState([0, 99999]);
   const [category, setCategory] = useState("All");
+  const [subCategory, setSubCategory] = useState("All");
   const [brand, setBrand] = useState("All");
+
 
   const dispatch = useDispatch();
   const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-  const searchQuery = queryParams.get("search") || '';
 
-  const [search, setSearch] = useState(searchQuery);
+  const [search, setSearch] = useState('');
 
-  console.log(searchQuery)
+ // console.log("searchQuery", searchQuery);
+
+
+
 
   useEffect(() => {
-    async function fetchData() {
-      const products = await getAllProducts();
-      dispatch(setProducts(products));
-      setLoading(false);
-    }
+
+    const queryParams = new URLSearchParams(location.search);
+    const searchQuery = queryParams.get("search") || '';
+    setSearch(searchQuery.toLowerCase());
+    setBrand("All");
+    setCategory(searchQuery)
+  }, [location.search]);
+
+
+
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/api/v1/product/allProducts");
+        if (res.data.success) {
+          dispatch(setProducts(res.data.products));
+        }
+      } catch (error) {
+        console.error(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchData();
-  }, []);
+  }, [dispatch]);
 
 
-  console.log(products)
-  console.log(priceRange[0])
-  console.log(priceRange[1])
+
+
+  // console.log(products)
+  // console.log(priceRange[0])
+  // console.log(priceRange[1])
 
 
   const filteredProducts = products
-    ?.filter(p => category === "All" || p.category === category)
-    ?.filter(p => brand === "All" || p.brand === brand)
-    ?.filter(p => p.productPrice >= priceRange[0] && p.productPrice <= priceRange[1])
-    ?.filter(p => p.productName.toLowerCase().includes(search.toLowerCase()))
-    // ?.filter(p => p.brand.toLowerCase().includes(search.toLowerCase()));
+    ?.filter(
+      (p) => brand === "All" || p.productBrand.toLowerCase() === brand.toLowerCase()
+    )
+    ?.filter(
+      (p) => p.productPrice >= priceRange[0] && p.productPrice <= priceRange[1]
+    )
+    ?.filter(
+      (p) =>
+        search === "" ||
+        p.productName.toLowerCase().includes(search) ||
+        p.productCategory.toLowerCase().includes(search) ||
+        p.productBrand.toLowerCase().includes(search) ||
+        p.productDescription.toLowerCase().includes(search) ||
+        p.productSubCategory.toLowerCase().includes(search)
+    );
 
 
-  console.log(filteredProducts)
+    
+
+// useEffect(() => {
+//   if (filteredProducts.length > 0 && search) {
+//     // find all products matching the current search
+//     const matchedProducts = filteredProducts.filter(p =>
+//       p.productName.toLowerCase().includes(search)
+//     );
+
+//     // if at least one match found → set category
+//     if (matchedProducts.length > 0) {
+//       setCategory(matchedProducts[0].category); // 👈 sets category to the first matching product's category
+//     } else {
+//       setCategory("All"); // fallback if nothing found
+//     }
+//   }
+// }, [products, search]);
 
 
- return (
-  <>
-    <div className="pt-20 pb-10">
 
-      {/* Main Container */}
-      <div className="max-w-[1350px] mx-auto px-4 flex flex-col lg:flex-row gap-6">
 
-        {/* Sidebar (full width on mobile, fixed width on large screens) */}
-        <div className="w-full lg:w-[280px] shrink-0">
-          <FilterSlider
-            priceRange={priceRange}
-            setPriceRange={setPriceRange}
-            category={category}
-            setCategory={setCategory}
-            brand={brand}
-            setBrand={setBrand}
-            search={search}
-            setSearch={setSearch}
-          />
-        </div>
 
-        {/* Product Section */}
-        <div className="flex-1 flex flex-col w-full">
+  // console.log("filteredProducts")
+  //  console.log(filteredProducts)
 
-          {/* Sort Section */}
-          <div className="flex justify-end mb-4">
-            <Select>
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="Sort by Price" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectItem value="lowToHigh">Price: Low to High</SelectItem>
-                  <SelectItem value="highToLow">Price: High to Low</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+
+  return (
+
+
+
+    <>
+
+      <div className="pt-20 pb-10 bg-white min-h-screen l">
+
+        {/* Main Container */}
+        <div className="max-w-[1350] mx-auto px-4 flex flex-col lg:flex-row gap-6 align-middle items-top">
+
+          {/* Sidebar (full width on mobile, fixed width on large screens) */}
+          <div className="">
+            <FilterSlider
+              priceRange={priceRange}
+              setPriceRange={setPriceRange}
+              category={category}
+              subCategory={subCategory}
+              setSubCategory={setSubCategory}
+              brand={brand}
+              setBrand={setBrand}
+            />
           </div>
 
-          {/* Products Grid */}
-          <div className="
-            grid 
-            grid-cols-2 
-            sm:grid-cols-2 
-            md:grid-cols-3 
-            lg:grid-cols-3 
-            xl:grid-cols-4 
-            gap-5
+          {/* Product Section */}
+          <div className="flex-1 flex flex-col w-full">
+
+            {/* Sort Section */}
+            <div className="mb-4 flex justify-end">
+              <select name="sort" id="sort">
+                <option value="default">Sort By</option>
+                <option value="priceLowToHigh">Price: Low to High</option>
+                <option value="priceHighToLow">Price: High to Low</option>
+                <option value="newestFirst">Newest First</option>
+              </select>
+            </div>
+
+            {/* Products Grid */}
+            <div className="
+              grid 
+              grid-cols-1 
+              sm:grid-cols-2
+              lg:grid-cols-3 
+              xl:grid-cols-4 
+              gap-6 
+              w-full
           ">
-            {filteredProducts.map(product => (
-              <ProductCard key={product._id} {...product} loading={loading} />
-            ))}
+              {filteredProducts.map(product => (
+                <ProductCard key={product._id} {...product} loading={loading}  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+ />
+              ))}
+            </div>
+
           </div>
-
         </div>
-      </div>
 
-    </div>
-  </>
-);
+      </div>
+    </>
+  );
 
 
 }

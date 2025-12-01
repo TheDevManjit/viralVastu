@@ -3,8 +3,6 @@ import { Button } from "./ui/button";
 import { useSelector } from "react-redux";
 
 export default function FilterSlider({
-  search,
-  setSearch,
   category,
   setCategory,
   brand,
@@ -14,9 +12,9 @@ export default function FilterSlider({
 }) {
   const { products } = useSelector((store) => store.products);
 
-  // Generate unique categories & brands
-  const uniqueCategory = ["All", ...new Set(products.map((p) => p.category))];
-  const uniqueBrands = ["All", ...new Set(products.map((p) => p.brand))];
+  // Generate unique categories & brands from new backend fields
+  const uniqueCategory = ["All", ...new Set(products.map((p) => p.productCategory))];
+  const uniqueBrands = ["All", ...new Set(products.map((p) => p.productBrand))];
 
   // Handlers
   const handleCategory = (item) => {
@@ -32,7 +30,6 @@ export default function FilterSlider({
     if (value <= priceRange[1]) {
       setPriceRange([value, priceRange[1]]);
     }
-    
   };
 
   const handleMaxChange = (e) => {
@@ -41,6 +38,8 @@ export default function FilterSlider({
       setPriceRange([priceRange[0], value]);
     }
   };
+
+  console.log(category)
 
   const resetFilters = () => {
     setSearch("");
@@ -51,30 +50,10 @@ export default function FilterSlider({
 
   return (
     <div className="bg-gray-100 mt-10 p-4 rounded-md h-max hidden md:block w-64">
-
-      {/* Search */}
-      <h2 className="font-semibold text-xl">Search</h2>
-      <input
-        type="text"
-        placeholder="Search products..."
-        className="w-full mt-2 p-2 rounded border"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-
       {/* Category */}
       <h2 className="mt-5 font-semibold text-xl">Categories</h2>
       <div className="flex flex-col gap-2 mt-3">
-        {uniqueCategory.map((item, index) => (
-          <label key={index} className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="radio"
-              checked={category === item}
-              onChange={() => handleCategory(item)}
-            />
-            <span>{item}</span>
-          </label>
-        ))}
+        <span>{category}</span>
       </div>
 
       {/* Brands */}
@@ -94,7 +73,9 @@ export default function FilterSlider({
       {/* Price range */}
       <h2 className="mt-5 font-semibold text-xl">Price Range</h2>
       <div className="bg-white w-full rounded-md p-2 mt-2 border">
-        <p>₹{priceRange[0]} - ₹{priceRange[1]}</p>
+        <p>
+          ₹{priceRange[0]} - ₹{priceRange[1]}
+        </p>
 
         <div className="flex items-center gap-2 mt-3">
           <input
@@ -127,7 +108,7 @@ export default function FilterSlider({
         <input
           type="range"
           min="0"
-          max="999999"
+          max="50000"
           value={priceRange[1]}
           onChange={handleMaxChange}
           className="w-full"

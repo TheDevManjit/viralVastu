@@ -4,6 +4,13 @@ import { DataGrid } from '@mui/x-data-grid';
 import { Link } from 'react-router-dom';
 import { getAllProducts } from '../api/productApi';
 import { useEffect, useState } from 'react';
+import { Trash } from 'lucide-react';
+import { deleteProduct } from '../api/productApi';
+import { toast } from 'sonner';
+import store from '@/redux/store';
+import { useSelector, useDispatch } from 'react-redux';
+import { setProducts } from '@/redux/productSlice';
+
 
 
 
@@ -13,8 +20,10 @@ import { useEffect, useState } from 'react';
 
 
 function ProductList() {
-    const [products, setProducts] = useState([]);
-  
+    
+    const { products } = useSelector(store => store.products);
+    const dispatch = useDispatch()
+
     const columns = [
         { field: 'SN', headerName: 'SN', width: 90 },
         { field: 'id', headerName: 'id', width: 90 },
@@ -34,7 +43,7 @@ function ProductList() {
             editable: true,
         },
 
-        // Live fullName
+
         {
             field: 'Brand',
             headerName: 'Brand',
@@ -58,6 +67,29 @@ function ProductList() {
                 </Link>
             ),
         },
+        {
+            field: "Delete",
+            headerName: "Delete",
+            width: 160,
+            sortable: false,
+            renderCell: (params) => (
+                <Link
+
+                    className="text-blue-500 underline cursor-pointer flex items-center gap-2"
+                    onClick={() => handleDelete(params.row.id)}
+                >
+                    <Trash />  Delete
+                </Link>
+            ),
+        },
+
+         {
+            field: 'productStock',
+            headerName: 'Stock',
+            type: 'number',
+            width: 110,
+            editable: true,
+        },
     ];
 
 
@@ -67,21 +99,59 @@ function ProductList() {
         productName: product.productName,
         Category: product.category,
         Brand: product.brand,
+        productStock: product.productStock,
     }));
 
+    console.log("Products in store:", products);
 
+    async function fetchProducts() {
+        try {
+            const res = await getAllProducts()
+            dispatch(setProducts(res.data.products));
+
+        } catch (error) {
+            toast.error(error?.data?.message || "Unexpected error");
+        }
+    }
 
 
     useEffect(() => {
-        // Fetch products from the API
-        const fetchProducts = async () => {
-            const products = await getAllProducts();
 
-            setProducts(products);
-        };
-
-        fetchProducts();
+        fetchProducts()
     }, []);
+
+
+
+    // console.log(products)
+
+
+    async function handleDelete(id) {
+
+        console.log("Delete product with id:", id);
+
+        try {
+            const res = await deleteProduct(id)
+            if (res?.data?.success) {
+                toast.success(res.data.message || "Product deleted successfully");
+
+                const updated = products.filter((p) => p._id !== id);
+                dispatch(setProducts(updated));
+                return;
+            }
+
+
+            toast.error(res?.data?.message || "Something went wrong");
+
+        } catch (error) {
+            toast.error(error?.data?.message || "Unexpected error");
+        }
+
+    }
+
+
+
+
+
     return (
         <Box sx={{ height: 700, width: '100%' }}>
             <DataGrid

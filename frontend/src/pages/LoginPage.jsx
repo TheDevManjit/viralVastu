@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label"
 import { EyeOff, Eye, Loader2 } from "lucide-react";
 import { toast } from "sonner"
 import axios from "axios";
-import { useDispatch,} from "react-redux";
+import { useDispatch, } from "react-redux";
 import { setUser } from "@/redux/userSlice";
 
 
@@ -33,7 +33,7 @@ export default function loginPage() {
     const [formData, setFormData] = useState({
         email: '',
         password: ''
-    }) 
+    })
     const dispatch = useDispatch()
 
 
@@ -49,7 +49,7 @@ export default function loginPage() {
         }))
 
     }
-    
+
     const handleSubmit = async (e) => {
         e.preventDefault()
         console.log(formData)
@@ -63,15 +63,16 @@ export default function loginPage() {
 
             if (res.data.success) {
                 dispatch(setUser(res.data.user))
-                localStorage.setItem('accessToken',res.data.accessToken)
+                localStorage.setItem('accessToken', res.data.accessToken)
+                localStorage.setItem('user',res.data.user)
                 navigate("/")
                 toast.success(res.data.message)
             }
 
         } catch (error) {
-           // console.log(error)
+            // console.log(error)
             toast.error(error.response.data.message)
-        }finally{
+        } finally {
             setLoading(false)
         }
 
@@ -79,65 +80,73 @@ export default function loginPage() {
 
     return (
 
-        <div className="flex justify-center items-center min-h-screen bg-green-100">
-            <Card className="w-full max-w-sm">
-                <CardHeader>
-                    <CardTitle className="text-center"> Welcome </CardTitle>
-                    <CardDescription className="text-center">
-                        Enter given detils for Login
-                    </CardDescription>
-                  
-                </CardHeader>
-                <CardContent>
+        <div className=" items-center min-h-screen flex   justify-center bg-sky-100 pt-10 relative">
+            <div className=" w-full md:w-[750px] md:grid grid-cols-2 gap-4 bg-linear-to-r from-blue-400 to-blue-200 p-5 rounded m">
+                <div className="max-w-sm mt-5">
+                    <p className="text-3xl font-bold flex flex-col justify-between gap-4">Explore <span className="text-yellow-300 font-extrabold">Biggest Collection</span>  of <span className="text-yellow-300 font-extrabold" > Trending Products</span></p>
+                    <img src="logo.png" alt="" className="w-40 scale-200 self-baseline" />
+                </div>
+                <Card className="w-full md:max-w-sm  h-[350px] justify-center">
+                    <CardHeader>
+                        <CardTitle className="text-center"> Welcome </CardTitle>
+                        <CardDescription className="text-center">
+                            Enter given details for Login
+                        </CardDescription>
 
-                    <div className="flex flex-col gap-6">
-                        
-                        <div className="grid gap-2">
-                            <Label htmlFor="email">Email</Label>
-                            <Input
-                                id="email"
-                                type="email"
-                                name="email"
-                                placeholder="m@example.com"
-                                required
-                                value={formData.email}
-                                onChange={handleChange}
+                    </CardHeader>
+                    <CardContent>
 
-                            />
-                        </div>
-                        <div className="grid gap-2">
-                            <div className="flex items-center">
-                                <Label htmlFor="password">Password</Label>
-                            </div>
-                            <div className="relative">
-                                <Input id="password"
-                                    name='password'
-                                    placeholder="Enter Password"
-                                    type={showPassword ? 'text' : 'password'}
+                        <div className="flex flex-col gap-6 ">
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="email">Email</Label>
+                                <Input
+                                    id="email"
+                                    type="email"
+                                    name="email"
+                                    placeholder="m@example.com"
                                     required
-                                    value={formData.password}
+                                    value={formData.email}
                                     onChange={handleChange}
-                                />
-                                {
-                                    showPassword ? <EyeOff onClick={() => setShowPassword(false)} className=" cursor-pointer w-5 h-5 text-gray-700 absolute right-5 bottom-2" /> :
-                                        <Eye onClick={() => setShowPassword(true)} className="cursor-pointer w-5 h-5 text-gray-700 absolute right-5 bottom-2" />
-                                }
 
+                                />
+                            </div>
+                            <div className="grid gap-2">
+                                <div className="flex items-center">
+                                    <Label htmlFor="password">Password</Label>
+                                </div>
+                                <div className="relative">
+                                    <Input id="password"
+                                        name='password'
+                                        placeholder="Enter Password"
+                                        type={showPassword ? 'text' : 'password'}
+                                        required
+                                        value={formData.password}
+                                        onChange={handleChange}
+                                    />
+                                    {
+                                        showPassword ? <EyeOff onClick={() => setShowPassword(false)} className=" cursor-pointer w-5 h-5 text-gray-700 absolute right-5 bottom-2" /> :
+                                            <Eye onClick={() => setShowPassword(true)} className="cursor-pointer w-5 h-5 text-gray-700 absolute right-5 bottom-2" />
+                                    }
+
+
+                                </div>
 
                             </div>
-
                         </div>
-                    </div>
 
-                </CardContent>
-                <CardFooter className="flex-col gap-2">
-                    <Button type="submit" className="w-full cursor-pointer bg-green-700 hover:bg-green-500" onClick={handleSubmit}>
-                       {loading ?<><Loader2 className="h-4 w-4 animate-spin" /> Loading </> : "Log In"} 
-                    </Button>
-                    <p className=" text-gray-700 text-sm"> Don't Have An Account? <Link to={"/signup"} className="hover:underline cursor-pointer text-green-500">Register Here</Link> </p>
+                    </CardContent>
+                    <CardFooter className="flex-col gap-2">
+                        <Button type="submit" className="w-full cursor-pointer bg-green-700 hover:bg-green-500" onClick={handleSubmit}>
+                            {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Loading </> : "Log In"}
+                        </Button>
+                        <p className=" text-gray-700 text-sm"> Don't Have An Account? <Link to={"/signup"} className="hover:underline cursor-pointer text-green-500">Register Here</Link> </p>
 
-                </CardFooter>
-            </Card>
+                    </CardFooter>
+                </Card>
+
+            </div>
+
         </div>
     )
 

@@ -4,6 +4,7 @@ import connectDB from "./database/db.js"
 import userRoute from "./routes/userRoute.js"
 import productRoute from "./routes/productRoute.js"
 import adminRoute from "./routes/adminRoute.js"
+import cartRoute from "./routes/cartRoute.js"
 import { errorHandler } from "./middleware/errorHandler.js"
 import cors from 'cors'
 
@@ -16,6 +17,7 @@ const PORT = process.env.PORT || 3000
 // middleware
 
 app.use(Express.json())
+app.use(Express.urlencoded({ extended: true }));
 
 const allowedOrigins = [
   "http://localhost:5173",
@@ -41,6 +43,7 @@ app.use(
 app.use("/api/v1/user",userRoute)
 app.use("/api/v1/product",productRoute)
 app.use("/api/v1/admin",adminRoute)
+app.use("/api/v1/cart",cartRoute)
 
 app.use(errorHandler)
 

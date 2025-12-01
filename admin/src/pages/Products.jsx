@@ -1,6 +1,11 @@
 import React from 'react'
 import { FunnelPlus, Plus } from 'lucide-react'
 import  ProductList  from '../components/ProductList'
+import { Link } from 'react-router-dom'
+
+
+
+
 
 function Products() {
   return (
@@ -15,10 +20,11 @@ function Products() {
           <span className=' flex gap-1 items-center border-2 border-[#848282] p-1 rounded-md cursor-pointer'>
             See All
           </span>
-          <span className='flex gap-1 items-center border-2 border-[#848282] p-1 rounded-md cursor-pointer'>
+         
+          <Link to="/add-product" className='flex gap-1 items-center border-2 border-[#848282] p-1 rounded-md cursor-pointer'>
             <Plus />
-            Add Items
-          </span>
+            Add Product
+          </Link>
         </div>
       </div>
       <div className='overflow-x-auto'>

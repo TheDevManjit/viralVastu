@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Menu, X, ShoppingCart, UserRound, Home } from "lucide-react";
 import { Input } from "./ui/input";
@@ -8,12 +8,18 @@ import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { setUser } from "@/redux/userSlice";
 import { toast } from "sonner";
+import { getAllProducts } from "@/api/productApi";
+import { fetchCart } from "@/redux/cartSlice";
+
+
+
 
 const Navbar = () => {
     const [open, setOpen] = useState(false);
     const [search, setSearch] = useState("");
     const [suggestions, setSuggestions] = useState([]);
     const [allProducts, setAllProducts] = useState([]);
+    const { cart, loading, error } = useSelector((state) => state.cart)
 
     const { user } = useSelector(store => store.user)
     const dispatch = useDispatch()
@@ -42,14 +48,31 @@ const Navbar = () => {
         }
     }
 
+
+
+    //console.log(cart)
+
     useEffect(() => {
-        const loadProducts = async () => {
-            const res = await axios.get("http://localhost:5000/api/v1/product/allProducts");
-            setAllProducts(res.data.products);
+        const fetchProducts = async () => {
+            try {
+                const products = await getAllProducts();
+                setAllProducts(products);
+            } catch (error) {
+                console.error("Error fetching products for search:", error);
+            }
         };
-        loadProducts();
+
+        fetchProducts();
+
     }, []);
 
+ 
+
+    useEffect(() => {
+        dispatch(fetchCart()) // this triggers the thunk
+    }, [dispatch])
+
+  console.log(cart.items)
 
     useEffect(() => {
         if (!search.trim()) {
@@ -59,26 +82,30 @@ const Navbar = () => {
 
         const filtered = allProducts.filter((p) =>
             p.productName.toLowerCase().includes(search.toLowerCase()) ||
-            p.brand.toLowerCase().includes(search.toLowerCase()) ||
-            p.category.toLowerCase().includes(search.toLowerCase())
+            p.productBrand.toLowerCase().includes(search.toLowerCase()) ||
+            p.productCategory.toLowerCase().includes(search.toLowerCase())
         );
 
         setSuggestions(filtered.slice(0, 7)); // top 7 results
     }, [search, allProducts]);
 
-    // 🔥 When clicking suggestion
+
     const handleSelectSuggestion = (value) => {
         navigate(`/product?search=${value}`);
-        setSearch("");
+
         setSuggestions([]);
+
     };
 
+   
 
+    if (loading) return <p>Loading...</p>
+    if (error) toast.error(error.message)
 
     return (
-        <nav className="w-full bg-white/90 backdrop-blur-sm border-b border-green-100 fixed top-0 left-0 z-50 shadow-sm">
-            <div className="max-w-[1350px] mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between items-center h-16">
+        <nav className="w-full text-white bg-linear-to-r from-blue-500 to-blue-600 fixed top-0 left-0 z-50 shadow-sm">
+            <div className="max-w-[90vw] mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex justify-center items-center h-16">
                     {/* Logo */}
                     <Link to="/" className="flex items-center gap-2">
                         <img
@@ -91,25 +118,25 @@ const Navbar = () => {
                     {/* Search Bar (hide on mobile) */}
                     <div className=" md:flex md:w-[300px] lg:w-[600px] relative w-[70vh] me-4">
                         <Input
-                            className="pl-10 pr-3 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:outline-none w-full"
+                            className="pl-10 pr-3 py-2 border border-white bg-white text-black rounded-xl focus:ring-2 focus:ring-white focus:outline-none w-full"
                             placeholder="Search for products..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                         />
-                        <Search className="absolute left-3 top-2.5 text-gray-400 w-5 h-5" />
+                        <Search className="absolute left-3 top-2.5  w-5 h-5" />
 
                         {/* 🔥 Suggestions Dropdown */}
                         {suggestions.length > 0 && (
-                            <div className="absolute bg-white shadow-lg border rounded-md w-full mt-10 max-h-80 overflow-y-auto z-50">
+                            <div className="absolute text-black bg-gray-100! shadow-lg border rounded-md w-full mt-10 max-h-80 overflow-y-auto z-50">
                                 {suggestions.map((item) => (
                                     <div
                                         key={item._id}
-                                        onClick={() => handleSelectSuggestion(item.productName)}
-                                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                        onClick={() => handleSelectSuggestion(item.productCategory)}
+                                        className="px-4 py-2 hover:bg-white cursor-pointer"
                                     >
-                                        <p className="font-medium">{item.productName || "manjit"}</p>
+                                        <p className="font-medium">{item.productName}</p>
                                         <p className="text-xs text-gray-500">
-                                            {item.brand} • {item.category}
+                                            {item.productBrand} • {item.productCategory}
                                         </p>
                                     </div>
                                 ))}
@@ -123,7 +150,7 @@ const Navbar = () => {
 
                         <Link
                             to="/product"
-                            className="text-gray-700 hover:text-green-600 border border-transparent transition font-medium hover:border hover:border-[#676D6C]  rounded p-1  "
+                            className="hover:text-green-600 border border-transparent transition font-medium hover:border hover:border-[#676D6C]  rounded p-1  "
                         >
                             Products
                         </Link>
@@ -137,7 +164,7 @@ const Navbar = () => {
                             <div className="relative group">
                                 {/* <!-- Profile --> */}
                                 <div
-                                    className="flex items-center gap-2 text-gray-700 hover:text-green-600 border border-transparent transition font-medium hover:border hover:border-[#676D6C] rounded p-1 cursor-pointer"
+                                    className="flex items-center gap-2 hover:text-green-600 border border-transparent transition font-medium hover:border hover:border-[#676D6C] rounded p-1 cursor-pointer"
                                 >
                                     <UserRound size={18} />
                                     <span>{user.firstName}</span>
@@ -148,12 +175,12 @@ const Navbar = () => {
                                     className="absolute right-0 mt-1 -translate-y-1 hidden w-40 bg-white shadow-md rounded-md group-hover:flex flex-col z-50"
                                     id="sub-menu"
                                 >
-                                    <ul className="py-2 text-sm text-gray-700">
+                                    <ul className="py-2 text-sm text-white bg-gray-700 rounded-md">
                                         <Link to={`/profile/${user._id}`}>
-                                            <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">My Profile</li>
+                                            <li className="px-4 py-2 hover:bg-gray-600 cursor-pointer">My Profile</li>
                                         </Link>
 
-                                        <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Orders</li>
+                                        <li className="px-4 py-2 hover:bg-gray-600 cursor-pointer">Orders</li>
                                     </ul>
                                 </div>
                             </div>
@@ -174,12 +201,17 @@ const Navbar = () => {
 
                         <Link
                             to="/cart"
-                            className="relative text-gray-700 hover:text-green-600 transition"
-                        >
-                            <ShoppingCart size={22} />
+                            className="relative hover:text-green-600 transition"
+                            
+                        > {
+                            
+                        }
+
+                         <ShoppingCart size={22} />
                             <span className="bg-green-500 text-white rounded-full text-xs absolute -top-2 -right-3 px-1.5">
-                                1
+                                { cart.items ? cart.items.length : 0  }
                             </span>
+                           
                         </Link>
                         {
                             user ?
@@ -247,12 +279,12 @@ const Navbar = () => {
                         )}
 
                         <Link
-                            to="/cart"
+
                             onClick={() => setOpen(false)}
                             className="flex items-center gap-2 text-gray-700 hover:text-green-600"
                         >
                             <ShoppingCart size={20} />
-                            <span>Cart (1)</span>
+                            <span>{items.items.length}</span>
                         </Link>
                     </div>
                 </div>

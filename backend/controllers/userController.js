@@ -7,10 +7,7 @@ import { Session } from "../models/sessionModel.js";
 import { sendOtpMail } from "../emailvarify/sendOtpMail.js";
 import e, { json } from "express";
 import cloudinary from "../utiles/cloudinary.js";
-
-
-
-
+import otpGenerator from "otp-generator";
 
 
 
@@ -40,17 +37,29 @@ const register = async (req, res) => {
             firstName,
             lastName,
             email,
-            password: hashedPassword
+            password: hashedPassword,
+
         })
 
-        const token = jwt.sign({ id: newUser._id }, process.env.SECRET_KEY, { expiresIn: '10m' })
-        varifyEmail(token, email)             // sending email
-        newUser.token = token
+
+        const otp = otpGenerator.generate(6, {
+            upperCaseAlphabets: false,
+            specialChars: false,
+            lowerCaseAlphabets: false,
+        });
+
+
+        sendOtpMail(otp, email)
+
+
+
+        newUser.otp = otp
+        newUser.otpExpiry = new Date(Date.now() + 60 * 1000)
         await newUser.save()
 
         return res.status(201).json({
             success: true,
-            message: "user register successfully",
+            message: "Otp send Successfully",
             user: newUser
         })
     } catch (error) {
@@ -62,6 +71,139 @@ const register = async (req, res) => {
     }
 }
 
+const varifyOtp = async (req, res) => {
+
+    try {
+        const { otp } = req.body
+        const { email } = req.params
+
+        if (!otp) {
+            return res.status(400).json({
+                success: false,
+                message: "Please Enter Opt "
+            })
+        }
+
+        if (!email) {
+            return res.status(400).json({
+                success: false,
+                message: "email is required"
+            })
+        }
+
+        //  console.log(email)
+        const user = await User.findOne({ email })
+        //   console.log(user)
+
+        if (!user) {
+            return res.status(400).json({
+                success: false,
+                message: "user not found"
+            })
+        }
+
+        if (!user.otp || !user.otpExpiry) {
+            return res.status(400).json({
+                success: false,
+                message: "Otp not generated or expired"
+            });
+        }
+
+        if (user.otpExpiry < new Date()) {
+            await User.findByIdAndUpdate(user._id, { otp: null });
+            return res.status(400).json({
+                success: false,
+                message: "OTP expired. Please request a new one."
+            });
+        }
+        
+        if (user.otp !== otp) {
+            return res.status(400).json({
+                success: false,
+                message: "OTP mismatched"
+            });
+        }
+
+
+
+        // implimenting auto login
+
+
+        const accessToken = jwt.sign({ id: user._id }, process.env.SECRET_KEY, { expiresIn: '10d' })
+        const refreshToken = jwt.sign({ id: user._id }, process.env.SECRET_KEY, { expiresIn: '30d' })
+
+        user.isVarified = true
+        user.otp = null
+        user.otpExpiry = null
+        user.isLoggedIn = true
+        await user.save()
+
+        // check for existing session
+        const existingSession = await Session.findOne({ userId: user._id })
+
+        if (existingSession) {
+            await Session.deleteOne({ userId: user._id })
+        }
+
+        // creating new session
+        await Session.create({ userId: user._id })
+
+        res.status(200).json({
+            success: true,
+            message: "OTP verified successfully! Logged in automatically.",
+            refreshToken,
+            accessToken,
+            user: {
+                id: user._id,
+                email: user.email,
+                firstName: user.firstName,
+                lastName: user.lastName,
+            },
+        });
+
+
+
+    } catch (error) {
+        return res.status(400).json({
+            success: false,
+            message: error.message
+        })
+    }
+
+
+}
+
+const resendOtp = async (req, res) => {
+    try {
+
+        const { email } = req.params;
+        const user = await User.findOne({ email });
+        if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+        // generate new OTP
+        const otp = otpGenerator.generate(6, {
+            upperCaseAlphabets: false,
+            specialChars: false,
+            lowerCaseAlphabets: false,
+        });
+
+        sendOtpMail(otp, user.email)
+
+        user.otp = otp;
+        user.otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
+        await user.save();
+
+        res.json({
+            success: true,
+            message: "OTP resent successfully",
+        });
+
+
+
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Error sending OTP" });
+    }
+}
 
 const varify = async (req, res) => {
     try {
@@ -216,7 +358,6 @@ const logIn = async (req, res) => {
 
 
 
-
     } catch (error) {
         return res.status(500).json({
             success: false,
@@ -293,77 +434,7 @@ const forgotPassword = async (req, res) => {
     }
 }
 
-const varifyOtp = async (req, res) => {
 
-    try {
-        const { otp } = req.body
-        const { email } = req.params
-
-        if (!otp) {
-            return res.status(400).json({
-                success: false,
-                message: "Please Enter Opt "
-            })
-        }
-
-        if (!email) {
-            return res.status(400).json({
-                success: false,
-                message: "email is required"
-            })
-        }
-
-        //  console.log(email)
-        const user = await User.findOne({ email })
-        //   console.log(user)
-
-        if (!user) {
-            return res.status(400).json({
-                success: false,
-                message: "user not found"
-            })
-        }
-
-        if (!user.otp || !user.otpExpiry) {
-            return res.status(400).json({
-                success: false,
-                message: "Otp not generated or expired"
-            });
-        }
-
-        if (user.otpExpiry < new Date()) {
-            await User.findByIdAndUpdate(user._id, { otp: null });
-            return res.status(400).json({
-                success: false,
-                message: "OTP expired. Please request a new one."
-            });
-        }
-
-        if (user.otp !== otp) {
-            return res.status(400).json({
-                success: false,
-                message: "OTP mismatched"
-            });
-        }
-        user.otp = null
-        user.otpExpiry = null
-        await user.save()
-
-        return res.status(200).json({
-            success: true,
-            message: 'otp varified successfully'
-        })
-
-
-    } catch (error) {
-        return res.status(400).json({
-            success: false,
-            message: error.message
-        })
-    }
-
-
-}
 
 // Both in one varifyPassword and Reset
 // const varifyAndChangePassword = async (req,res) =>{
@@ -640,4 +711,4 @@ const updateUser = async (req, res) => {
 
 }
 
-export { register, logIn, varify, reVarify, logOut, forgotPassword, varifyOtp, changePassword, allUsers, updateUser }
+export { register, logIn, varify, reVarify, logOut, resendOtp, forgotPassword, varifyOtp, changePassword, allUsers, updateUser }

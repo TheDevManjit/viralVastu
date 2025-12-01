@@ -1,10 +1,13 @@
 import LoginPage from "./pages/LoginPage";
 import Dashboard from "./pages/Dasboard";
 import ProtectedRoute from "./components/ProtectedRoute";
+import ProductUpdate from "./pages/ProductUpdate";
 import Products from "./pages/Products";
 import Orders from "./pages/Orders";
 import Users from "./pages/Users";
 import WebSettings from "./pages/WebSettings";
+import React from "react";
+import ProductAdd from "./pages/ProductAdd";
 import Text from "./pages/Text";
 import './App.css'
 import { createBrowserRouter, RouterProvider, Route, Routes, createRoutesFromElements } from 'react-router-dom'
@@ -22,6 +25,8 @@ const router = createBrowserRouter(
           <Route index element={<Text />} />
           <Route path="orders" element={<Orders />} />
           <Route path="products" element={<Products />} />
+          <Route path="product/:id" element={<ProductUpdate />} />
+          <Route path="add-product" element={<ProductAdd />} />
           <Route path="users" element={<Users />} />
           <Route path="settings" element={<WebSettings />} />
         </Route>
