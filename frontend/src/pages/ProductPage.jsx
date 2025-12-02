@@ -66,9 +66,10 @@ export default function ProductPage() {
       toast.error("Invalid product. Cannot add to cart.");
       return;
     }
+    console.log(product._id,"  " ,quantity)
 
     dispatch(addToCart({ productId: product._id, quantity }))
-
+    navigate("/cart")
 
   }
 

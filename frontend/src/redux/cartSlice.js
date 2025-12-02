@@ -38,6 +38,27 @@ export const addToCart = createAsyncThunk(
     }
 )
 
+export const removeItem = createAsyncThunk(
+    'cart/removeCart',
+    async ({ productId }, { rejectWithValue }) => {
+        try {
+            const response = await axios.post('http://localhost:5000/api/v1/cart/remove',
+                { productId },
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                    },
+                }
+            )
+            console.log("Add to Cart Response:", response.data)
+            return response.data
+        } catch (error) {
+            return rejectWithValue(error.response.data)
+        }
+    }
+
+)
+
 const cartSlice = createSlice({
 
     name: "cart",
@@ -60,7 +81,7 @@ const cartSlice = createSlice({
             .addCase(fetchCart.fulfilled, (state, action) => {
                 state.loading = false
                 state.cart = action.payload.cart || []
-              
+
             })
 
             .addCase(fetchCart.rejected, (state, action) => {
@@ -73,13 +94,26 @@ const cartSlice = createSlice({
             .addCase(addToCart.fulfilled, (state, action) => {
                 if (action.payload?.cart) {
                     state.cart = action.payload.cart
-                   
+
                 }
             })
 
             .addCase(addToCart.rejected, (state, action) => {
                 state.error = action.payload
             })
+
+            // Handle remove
+            .addCase(removeItem.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(removeItem.fulfilled, (state, action) => {
+                state.loading = false;
+                state.cart = action.payload.cart; // ✅ update the store
+            })
+            .addCase(removeItem.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload?.message || "Failed to remove item";
+            });
     },
 })
 

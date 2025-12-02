@@ -7,33 +7,43 @@ import store from '@/redux/store';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 import { addToCart } from "../redux/cartSlice.js";
+import { fetchCart } from '../redux/cartSlice.js';
+import { removeItem } from '../redux/cartSlice.js';
+import Loader from '@/components/Loader.jsx';
+
 
 const CartPage = () => {
   const { cart, loading, error } = useSelector((state) => state.cart)
   const [quantities, setQuantities] = useState({});
   const dispatch = useDispatch();
 
-
   useEffect(() => {
-    if (cart?.items?.length) {
-      const initialQuantities = {};
-      cart.items.forEach(item => {
-        initialQuantities[item.product._id] = item.quantity;
-      });
-      setQuantities(initialQuantities);
-    }
-  }, [cart]);
-
-  
+    dispatch(fetchCart()) // this triggers the thunk
+  }, [dispatch])
 
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen text-gray-600"> Loading... </div>
-    );
+  function handleRemove(id) {
+    dispatch(removeItem({ productId: id }))
+      .unwrap()
+      .then(() => toast.success("Item removed from cart"))
+      .catch(() => toast.error("Failed to remove item"));
   }
 
 
+
+
+
+  if (loading) return <div className='flex justify-center my-20 items-center'><Loader/></div>
+  if (error) return <div>Error: {error.message}</div>
+
+
+  if (!cart || !cart.items || cart.items.length === 0) {
+    return (
+      <div className="flex justify-center items-center h-screen text-gray-600">
+        Cart is empty
+      </div>
+    );
+  }
 
   return (
 
@@ -41,12 +51,27 @@ const CartPage = () => {
       <div className=' max-w-7xl flex justify-center gap-5'>
         <div className="flex-1 space-y-4 ">
           {cart.items.map((item) => (
-            <Card key={item.id} className="flex flex-col md:flex-row p-4 items-start">
-              <img
-                src={item.product.productImg[0].url}
-                alt={item.product.productName}
-                className="w-24 h-24 object-cover rounded-md border"
-              />
+
+
+            <Card key={item._id} className="flex flex-col md:flex-row p-4 items-start">
+              {
+
+                (item.product.productImg[0].url &&
+                  <img
+                    src={item.product.productImg[0].url}
+                    alt={item.product.productName}
+                    className="w-24 h-24 object-cover rounded-md border" />
+                )
+
+
+
+              }
+
+
+
+
+
+
               <CardContent className="flex flex-col md:flex-row justify-between w-full gap-4">
                 <div className="flex-1">
                   <h3 className="font-semibold text-gray-800">{item.product.productName}</h3>
@@ -69,9 +94,9 @@ const CartPage = () => {
                     </div>
                   )}
 
-                  {/* <div className="flex items-center gap-4 mt-3">
+                  <div className="flex items-center gap-4 mt-3">
                     <div className="flex items-center border rounded-md px-2 cursor-pointer">
-                      <button
+                      {/* <button
                         onClick={() => decreaseQuantity(item.product._id)}
                         className="text-xl px-2"
                       >
@@ -83,17 +108,19 @@ const CartPage = () => {
                         className="text-xl px-2"
                       >
                         +
-                      </button>
+                      </button> */}
                     </div>
 
 
                     <button
-                      onClick={() => handleRemove(item.id)}
-                      className="text-sm font-medium text-red-600 hover:underline"
+                      onClick={() => handleRemove(item.product._id)
+
+                      }
+                      className="text-sm font-medium text-red-600 hover:underline cursor-pointer"
                     >
                       REMOVE
                     </button>
-                  </div> */}
+                  </div>
                 </div>
 
                 <div className="text-right">

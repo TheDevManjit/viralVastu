@@ -100,7 +100,7 @@ const Navbar = () => {
    
 
     if (loading) return <p>Loading...</p>
-    if (error) toast.error(error.message)
+    // if (error) toast.error(error.message)
 
     return (
         <nav className="w-full text-white bg-linear-to-r from-blue-500 to-blue-600 fixed top-0 left-0 z-50 shadow-sm">
