@@ -6,12 +6,12 @@ import HomePage from './pages/HomePage'
 import SignupPage from './pages/SignupPage'
 import LoginPage from './pages/LoginPage'
 import VerifyEmailSend from './pages/VarifyEmailSend'
-import EmailVarificationPage from './pages/EmailVarificationPage'
 import Profile from './components/Profile'
 import Layout from './Layout'
 import ProductsPage from './pages/ProductsPage'
 import ProductPage from './pages/ProductPage'
 import CartPage from './pages/CartPage.jsx'
+import ChangePassword from './pages/ChangePassword'
 
 
 
@@ -61,9 +61,9 @@ const router = createBrowserRouter(
       <Route path='' element={<HomePage />} />
       <Route path='/signup' element={<SignupPage />} />
       <Route path='/login' element={<LoginPage />} />
-      <Route path='/varify' element={<VerifyEmailSend />} />
-      <Route path='/varify/:token' element={<EmailVarificationPage />} />
-      <Route path='/varify/:token' element={<EmailVarificationPage />} />
+      <Route path='/emailsent' element={<VerifyEmailSend />} />
+      <Route path='/changepassword/:token' element={<ChangePassword />} />
+      
       <Route path='/profile/:userId' element={<Profile />} />
       <Route path='/product/' element={<ProductsPage />} />
       <Route path='/product/:id' element={<ProductPage />} />

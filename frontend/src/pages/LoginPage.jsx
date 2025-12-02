@@ -18,6 +18,7 @@ import { toast } from "sonner"
 import axios from "axios";
 import { useDispatch, } from "react-redux";
 import { setUser } from "@/redux/userSlice";
+import { forgotpassword } from "@/api/userApi";
 
 
 
@@ -34,6 +35,7 @@ export default function loginPage() {
         email: '',
         password: ''
     })
+    const [forgotPass, setForgotPass] = useState(false)
     const dispatch = useDispatch()
 
 
@@ -64,7 +66,7 @@ export default function loginPage() {
             if (res.data.success) {
                 dispatch(setUser(res.data.user))
                 localStorage.setItem('accessToken', res.data.accessToken)
-                localStorage.setItem('user',res.data.user)
+                localStorage.setItem('user', res.data.user)
                 navigate("/")
                 toast.success(res.data.message)
             }
@@ -76,6 +78,19 @@ export default function loginPage() {
             setLoading(false)
         }
 
+    }
+
+    const handleForgotPass = async () => {
+        const email = formData.email
+        console.log(email)
+        try {
+            const response = await axios.post(`http://localhost:5000/api/v1/user/forgotpassword`, { email })
+            if(response.data.success){
+               navigate("/emailsent")
+            }
+        } catch (error) {
+            toast.error(error.response.data.message || "Something went wrong")
+        }
     }
 
     return (
@@ -111,35 +126,66 @@ export default function loginPage() {
 
                                 />
                             </div>
-                            <div className="grid gap-2">
-                                <div className="flex items-center">
-                                    <Label htmlFor="password">Password</Label>
+                            {(
+                                !forgotPass &&
+                                <div className="grid gap-2">
+                                    <div className="flex items-center">
+                                        <Label htmlFor="password">Password</Label>
+                                    </div>
+                                    <div className="relative">
+                                        <Input id="password"
+                                            name='password'
+                                            placeholder="Enter Password"
+                                            type={showPassword ? 'text' : 'password'}
+                                            required
+                                            value={formData.password}
+                                            onChange={handleChange}
+                                        />
+                                        {
+                                            showPassword ? <EyeOff onClick={() => setShowPassword(false)} className=" cursor-pointer w-5 h-5 text-gray-700 absolute right-5 bottom-2" /> :
+                                                <Eye onClick={() => setShowPassword(true)} className="cursor-pointer w-5 h-5 text-gray-700 absolute right-5 bottom-2" />
+                                        }
+
+
+                                    </div>
+
                                 </div>
-                                <div className="relative">
-                                    <Input id="password"
-                                        name='password'
-                                        placeholder="Enter Password"
-                                        type={showPassword ? 'text' : 'password'}
-                                        required
-                                        value={formData.password}
-                                        onChange={handleChange}
-                                    />
-                                    {
-                                        showPassword ? <EyeOff onClick={() => setShowPassword(false)} className=" cursor-pointer w-5 h-5 text-gray-700 absolute right-5 bottom-2" /> :
-                                            <Eye onClick={() => setShowPassword(true)} className="cursor-pointer w-5 h-5 text-gray-700 absolute right-5 bottom-2" />
-                                    }
+                            )}
 
 
-                                </div>
-
-                            </div>
                         </div>
+                        {(
+                            !forgotPass ?
+                                <span className="text-sm mx-2  hover:underline hover:text-yellow-600"><Link
+
+                                    onClick={() => setForgotPass((prev) => !prev)}
+
+                                >Forgot Password ?</Link></span>
+                                :
+
+                                <span className="text-sm mx-2  hover:underline hover:text-yellow-600"><Link
+
+                                    onClick={() => setForgotPass((prev) => !prev)}
+
+                                >Log In ?</Link></span>
+                        )}
+
 
                     </CardContent>
+
                     <CardFooter className="flex-col gap-2">
-                        <Button type="submit" className="w-full cursor-pointer bg-green-700 hover:bg-green-500" onClick={handleSubmit}>
-                            {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Loading </> : "Log In"}
-                        </Button>
+                        {(
+                            !forgotPass ?
+                                <Button type="submit" className="w-full cursor-pointer bg-green-700 hover:bg-green-500" onClick={handleSubmit}>
+                                    {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Loading </> : "Log In"}
+                                </Button>
+                                :
+                                <Button type="submit" className="w-full cursor-pointer bg-green-700 hover:bg-green-500" onClick={handleForgotPass}>
+                                    {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Loading </> : "submit"}
+                                </Button>
+                        )}
+
+
                         <p className=" text-gray-700 text-sm"> Don't Have An Account? <Link to={"/signup"} className="hover:underline cursor-pointer text-green-500">Register Here</Link> </p>
 
                     </CardFooter>

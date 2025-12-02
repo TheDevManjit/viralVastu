@@ -10,10 +10,11 @@ const VerifyEmailSend = () => {
           Check Your Email 📩
         </h1>
         <p className="text-gray-600 text-lg">
-          We've sent an email to verify your account.
+          We've sent an email to reset your password.
         </p>
         <p className="text-gray-600 mt-2">
-          Please check your inbox and click on the verification link.
+          Please check your inbox and Change password.
+          This Link valid only for 10 Minutes
         </p>
 
         <div className="mt-6">

@@ -33,7 +33,7 @@ const CartPage = () => {
 
 
 
-  if (loading) return <div className='flex justify-center my-20 items-center'><Loader/></div>
+  if (loading) return <div className='flex justify-center items-center h-screen text-gray-600"'><Loader/></div>
   if (error) return <div>Error: {error.message}</div>
 
 

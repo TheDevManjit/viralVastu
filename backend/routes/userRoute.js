@@ -1,5 +1,5 @@
 import Express from 'express'
-import { logIn, register, reVarify, varify,logOut, resendOtp,
+import { logIn, register, reVarify, logOut, resendOtp,
      forgotPassword, varifyOtp, 
      changePassword, allUsers, 
      updateUser } from '../controllers/userController.js'
@@ -14,11 +14,10 @@ router.post("/register",register)
 router.post("/varifyotp/:email",varifyOtp);
 router.post("/resend-otp/:email",resendOtp);
 router.post("/login",logIn)
-router.post("/varify",varify)
 router.post("/revarify",reVarify)
 router.post("/logout",isAuthenticated,logOut)
 router.post("/forgotpassword",forgotPassword)
-router.post("/changepassword/:email",changePassword);
+router.post("/changepassword", changePassword);
 router.get("/allusers",isAuthenticated,isAdmin,allUsers)
 router.put("/update/:userId",isAuthenticated,singleUpload,updateUser)
 

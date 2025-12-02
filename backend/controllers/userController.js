@@ -2,7 +2,7 @@ import { User } from "../models/userModel.js"
 import bcrypt from "bcryptjs";
 import jwt from 'jsonwebtoken'
 import 'dotenv/config'
-import { varifyEmail } from "../emailvarify/varifyEmail.js";
+import { forgotPassLink } from "../emailvarify/forgotPassLink.js";
 import { Session } from "../models/sessionModel.js";
 import { sendOtpMail } from "../emailvarify/sendOtpMail.js";
 import e, { json } from "express";
@@ -116,7 +116,7 @@ const varifyOtp = async (req, res) => {
                 message: "OTP expired. Please request a new one."
             });
         }
-        
+
         if (user.otp !== otp) {
             return res.status(400).json({
                 success: false,
@@ -202,91 +202,6 @@ const resendOtp = async (req, res) => {
 
     } catch (error) {
         res.status(500).json({ success: false, message: "Error sending OTP" });
-    }
-}
-
-const varify = async (req, res) => {
-    try {
-        const authHeader = req.headers.authorization
-        if (!authHeader || !authHeader.startsWith("Bearer ")) {
-            res.status(400).json({
-                success: false,
-                message: "token is missing or invalid"
-            })
-        }
-
-        const token = authHeader.split(" ")[1]           // just token
-        let decoded
-        try {
-            decoded = jwt.verify(token, process.env.SECRET_KEY)
-        } catch (error) {
-            if (error.message === "TokenExpiredError") {
-                return res.status(400).json({
-                    success: false,
-                    message: "The Reg token has expired"
-                })
-            }
-
-            return res.status(400).json({
-                success: false,
-                message: "Token varification failed"
-            })
-        }
-
-        const user = await User.findById(decoded.id)
-        if (!user) {
-            return res.status(400).json({
-                success: false,
-                message: "USer not found"
-            })
-        }
-
-        user.token = null
-        user.isVarified = true
-        await user.save()
-
-        return res.status(200).json({
-            success: true,
-            message: "Email varified successfully"
-        })
-    } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: error.message
-        })
-    }
-}
-
-const reVarify = async (req, res) => {
-    try {
-
-        const { email } = req.body
-        const user = await User.findOne({ email })
-
-        if (!user) {
-            res.status(400).json({
-                success: false,
-                message: "User Not exits"
-
-            })
-        }
-
-        const token = jwt.sign({ id: user._id }, process.env.SECRET_KEY, { expiresIn: '10m' })
-        varifyEmail(token, email)             // sending email
-        user.token = token
-        // await user.save()
-
-        return res.status(200).json({
-            success: true,
-            message: "varification mail send again successfully",
-            token: user.token
-        })
-
-    } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: error.message
-        })
     }
 }
 
@@ -409,15 +324,16 @@ const forgotPassword = async (req, res) => {
             })
         }
 
-        const otp = Math.floor(Math.random() * 900000) + 100000;
-        const otpExpiry = new Date(Date.now() + 60 * 1000)   // 10 mins
+        const accessToken = jwt.sign({ id: existingUser._id }, process.env.SECRET_KEY, { expiresIn: '10m' })
 
-        existingUser.otp = otp
-        existingUser.otpExpiry = otpExpiry
+
+
+
+        existingUser.token = accessToken
         await existingUser.save()
 
+        forgotPassLink(accessToken, email)
 
-        sendOtpMail(otp, email)
 
         return res.status(200).json({
             success: true,
@@ -434,92 +350,123 @@ const forgotPassword = async (req, res) => {
     }
 }
 
-
-
-// Both in one varifyPassword and Reset
-// const varifyAndChangePassword = async (req,res) =>{
-//        try {
-//         const { newPassword, confirmNewPassword, otp } = req.body
-//         const { email } = req.params
-
-//         if (!newPassword || !confirmNewPassword || !otp) {
-//             return res.status(400).json({
-//                 success: false,
-//                 message: "All fields are requird"
-//             })
-//         }
-
-//         if (!email) {
-//             return res.status(400).json({
-//                 success: false,
-//                 message: "email is required"
-//             })
-//         }
-
-//         console.log(email)
-
-
-
-//         if (newPassword !== confirmNewPassword) {
-//             return res.status(400).json({
-//                 success: false,
-//                 message: "Password mismathched"
-//             })
-//         }
-
-//         const user = await User.findOne({ email })
-//      //   console.log(user)
-
-//         if (!user) {
-//             return res.status(400).json({
-//                 success: false,
-//                 message: "user not found"
-//             })
-//         }
-//         if (user.otpExpiry < Date.now()) {
-//             await User.findByIdAndUpdate(user._id, { otp: null });
-//             return res.status(400).json({
-//                 success: false,
-//                 message: "OTP expired. Please request a new one."
-//             });
-//         }
-//         if (user.otp !== otp) {
-//             return res.status(400).json({
-//                 success: false,
-//                 message: "OTP mismatched"
-//             });
-//         }
-
-//         const salt = await bcrypt.genSalt(10);
-//         const hashedPassword = await bcrypt.hash(newPassword, salt);
-//         await User.findByIdAndUpdate(user._id, { password: hashedPassword });
-//         await User.findByIdAndUpdate(user._id, { otp: null });
-
-
-
-
-
-
-//         return res.status(200).json({
-//             success: true,
-//             message: 'Password changed successfully'
-//         })
-
-
-
-
-
-//     } catch (error) {
-//         return res.status(400).json({
-//             success: false,
-//             message: error.message
-//         })
-//     }
-
-
-// }
-
 const changePassword = async (req, res) => {
+
+    const { newPassword, confirmNewPassword } = req.body
+
+    try {
+        const authHeader = req.headers.authorization
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+            res.status(400).json({
+                success: false,
+                message: "token is missing or invalid"
+            })
+        }
+
+        const token = authHeader.split(" ")[1]           // just token
+        let decoded
+        try {
+            decoded = jwt.verify(token, process.env.SECRET_KEY)
+        } catch (error) {
+            if (error.message === "TokenExpiredError") {
+                return res.status(400).json({
+                    success: false,
+                    message: "The Reg token has expired"
+                })
+            }
+
+            return res.status(400).json({
+                success: false,
+                message: "Token varification failed"
+            })
+        }
+
+        const user = await User.findById(decoded.id)
+
+        if (!user) {
+            return res.status(400).json({
+                success: false,
+                message: "USer not found"
+            })
+        }
+
+        if (!newPassword || !confirmNewPassword) {
+            return res.status(400).json({
+                success: false,
+                message: "All fields are requird"
+            })
+        }
+
+        //  console.log(email)
+
+        if (newPassword !== confirmNewPassword) {
+            return res.status(400).json({
+                success: false,
+                message: "Password mismathched"
+            })
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+        user.password = hashedPassword
+
+        user.token = null
+        await user.save()
+
+        return res.status(200).json({
+            success: true,
+            message: 'Password changed successfully'
+        })
+
+
+
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
+
+
+const reVarify = async (req, res) => {
+    try {
+
+        const { email } = req.body
+        const user = await User.findOne({ email })
+
+        if (!user) {
+            res.status(400).json({
+                success: false,
+                message: "User Not exits"
+
+            })
+        }
+
+        const token = jwt.sign({ id: user._id }, process.env.SECRET_KEY, { expiresIn: '10m' })
+        varifyEmail(token, email)             // sending email
+        user.token = token
+        // await user.save()
+
+        return res.status(200).json({
+            success: true,
+            message: "varification mail send again successfully",
+            token: user.token
+        })
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
+
+
+const NAN = async (req, res) => {
     try {
         const { newPassword, confirmNewPassword } = req.body
         const { email } = req.params
@@ -711,4 +658,4 @@ const updateUser = async (req, res) => {
 
 }
 
-export { register, logIn, varify, reVarify, logOut, resendOtp, forgotPassword, varifyOtp, changePassword, allUsers, updateUser }
+export { register, logIn, reVarify, logOut, resendOtp, forgotPassword, varifyOtp, changePassword, allUsers, updateUser }
