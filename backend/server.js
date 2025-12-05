@@ -7,7 +7,7 @@ import adminRoute from "./routes/adminRoute.js"
 import cartRoute from "./routes/cartRoute.js"
 import { errorHandler } from "./middleware/errorHandler.js"
 import cors from 'cors'
-
+import categoryRouter from './routes/categoryRoute.js'
 
 
 
@@ -24,6 +24,7 @@ const allowedOrigins = [
   "http://localhost:5174",
   "http://127.0.0.1:5173",
 ];
+
 
 app.use(
   cors({
@@ -42,6 +43,7 @@ app.use(
 
 app.use("/api/v1/user",userRoute)
 app.use("/api/v1/product",productRoute)
+app.use("/api/v1/category",categoryRouter)
 app.use("/api/v1/admin",adminRoute)
 app.use("/api/v1/cart",cartRoute)
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { addProduct } from '@/api/productApi'
 import { TextField, Button, Card, CardContent, CardHeader, MenuItem, Select, FormControl, InputLabel } from "@mui/material"
+import AddCategory from '@/components/AddCategory'
 import { toast } from 'sonner'
 import store from '@/redux/store'
 import { useSelector, useDispatch } from 'react-redux'
@@ -8,10 +9,12 @@ import { getAllProducts } from '@/api/productApi'
 import { setProducts } from '@/redux/productSlice'
 
 
+
 function ProductAdd() {
     const { products } = useSelector(store => store.products)
     const [categoryOptions, setCategoryOptions] = useState([])
     const [subCategoryOptions, setSubCategoryOptions] = useState([])
+    const [enableCatEdit, setEnableCatEdit] = useState(false)
     const dispatch = useDispatch()
 
 
@@ -155,13 +158,12 @@ function ProductAdd() {
                     productRating: "",
                     productReviews: 0,
                     productCategory: "",
-                    productSubcategory: "",
                     productBrand: "",
                     productStock: "",
                     isTrending: false,
                 });
                 setFiles([]);
-                    // Refresh product list
+                // Refresh product list
 
                 try {
                     const res = await getAllProducts()
@@ -185,19 +187,60 @@ function ProductAdd() {
     return (
 
 
-        <div className='bg-white rounded-lg shadow-md p-4'>
+        <div className='bg-white rounded-lg shadow-md p-4 relative'>
             <Card className="w-full  shadow-xl rounded-2xl ">
-                <CardHeader title="Add New Product" className="text-center" />
+                <div className=''>
+                    <CardHeader title="Add New Product" className="text-center relative" />
+
+                    <div className={enableCatEdit ? 'flex' : "hidden"}>
+                        <AddCategory />
+                    </div>
+                    <div className='absolute right-15 top-3'>
+                        <Button onClick={() =>{setEnableCatEdit((prev) => !prev)}} variant="contained" className="!mt-4 !p-3 ">
+                            Add Category
+                        </Button>
+
+                    </div>
+
+
+
+                </div>
+
                 <CardContent className=''>
                     <form onSubmit={handleSubmit} className="space-y-6 flex flex-col gap-2">
 
-                        <TextField
-                            label="Product Name"
-                            fullWidth
-                            name="productName"
-                            value={form.productName}
-                            onChange={handleChange}
-                        />
+                        <div className="grid grid-cols-2 gap-4">
+                            <TextField
+                                label="Product Name"
+                                fullWidth
+                                name="productName"
+                                value={form.productName}
+                                onChange={handleChange}
+                            />
+
+                            {
+                                products.length > 0 && (
+                                    <div>
+                                        <FormControl fullWidth>
+                                            <InputLabel>Categories</InputLabel>
+                                            <Select
+                                                name="productCategory"
+                                                value={form.productCategory || ""}
+                                                onChange={handleChange}
+                                                label="Category"
+                                            >
+                                                {categoryOptions.map(cat => (
+                                                    <MenuItem key={cat} value={cat}>{cat}</MenuItem>
+                                                ))}
+                                                <MenuItem value="custom">Add New Category</MenuItem>
+                                            </Select>
+                                        </FormControl>
+
+                                    </div>
+                                )
+                            }
+                        </div>
+
 
                         <TextField
                             label="Description"
@@ -225,69 +268,6 @@ function ProductAdd() {
                             />
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
-
-                            {/* CATEGORY */}
-                            {
-                                products.length > 0 && (
-                                    <div>
-                                        <FormControl fullWidth>
-                                            <InputLabel>Category</InputLabel>
-                                            <Select
-                                                name="productCategory"
-                                                value={form.productCategory || ""}
-                                                onChange={handleChange}
-                                                label="Category"
-                                            >
-                                                {categoryOptions.map(cat => (
-                                                    <MenuItem key={cat} value={cat}>{cat}</MenuItem>
-                                                ))}
-                                                <MenuItem value="custom">Add New Category</MenuItem>
-                                            </Select>
-                                        </FormControl>
-
-                                        {form.productCategory === "custom" && (
-                                            <TextField
-                                                label="New Category"
-                                                fullWidth
-                                                value={customCategory}
-                                                onChange={(e) => setCustomCategory(e.target.value)}
-                                            />
-                                        )}
-                                    </div>
-                                )
-                            }
-
-
-                            {/* SUBCATEGORY */}
-                            <div>
-                                {products && (
-                                    <FormControl fullWidth>
-                                        <InputLabel>Subcategory</InputLabel>
-                                        <Select
-                                            name="productSubCategory"
-                                            value={form.productSubCategory || ""}
-                                            onChange={handleChange}
-                                            label="Subcategory"
-                                        >
-                                            {currentSubCategories.map(sub => (
-                                                <MenuItem key={sub} value={sub}>{sub}</MenuItem>
-                                            ))}
-                                            <MenuItem value="custom">Add New Subcategory</MenuItem>
-                                        </Select>
-                                    </FormControl>
-                                )}
-
-                                {form.productSubCategory === "custom" && (
-                                    <TextField
-                                        label="New Subcategory"
-                                        fullWidth
-                                        value={customSubCategory}
-                                        onChange={(e) => setCustomSubCategory(e.target.value)}
-                                    />
-                                )}
-                            </div>
-                        </div>
 
                         {/* BRAND / STOCK */}
                         <div className="grid grid-cols-2 gap-4">
