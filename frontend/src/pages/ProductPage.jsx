@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { addToCart } from "../redux/cartSlice.js";
 import ProductCarousel from "../components/ProductCarousel.jsx";
 import { Skeleton } from "../components/ui/skeleton.jsx";
+import { getProductById } from "@/api/productApi.js";
 
 
 
@@ -28,17 +29,20 @@ export default function ProductPage() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/v1/product/product/${id}`);
-        setProduct(res.data.product);
-      } catch (error) {
-        console.error("Error fetching product:", error);
+        setLoading(true);
+        const res = await getProductById(id);
+        setProduct(res.product);
+      } catch (err) {
+        toast.error(err.message || "server error")
       } finally {
         setLoading(false);
       }
     };
-
     fetchProduct();
   }, [id]);
+
+  console.log(product)
+
 
   if (loading) {
     return (

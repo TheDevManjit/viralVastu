@@ -466,59 +466,6 @@ const reVarify = async (req, res) => {
 
 
 
-const NAN = async (req, res) => {
-    try {
-        const { newPassword, confirmNewPassword } = req.body
-        const { email } = req.params
-
-        const user = await User.findOne({ email })
-
-        if (!newPassword || !confirmNewPassword) {
-            return res.status(400).json({
-                success: false,
-                message: "All fields are requird"
-            })
-        }
-
-        //  console.log(email)
-
-        if (newPassword !== confirmNewPassword) {
-            return res.status(400).json({
-                success: false,
-                message: "Password mismathched"
-            })
-        }
-
-        if (!user) {
-            return res.status(400).json({
-                success: false,
-                message: "user not found"
-            })
-        }
-
-
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(newPassword, salt);
-        await User.findByIdAndUpdate(user._id, { password: hashedPassword });
-
-
-        return res.status(200).json({
-            success: true,
-            message: 'Password changed successfully'
-        })
-
-
-
-
-
-    } catch (error) {
-        return res.status(400).json({
-            success: false,
-            message: error.message
-        })
-    }
-}
-
 const allUsers = async (req, res) => {
 
     try {

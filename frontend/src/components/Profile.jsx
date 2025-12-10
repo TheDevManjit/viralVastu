@@ -36,7 +36,6 @@ export default function Profile() {
 
         phoneNo: user?.phoneNo,
         profilePic: user?.profilePic,
-        role: user.role,
         email: user?.email,
 
     })

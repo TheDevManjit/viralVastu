@@ -19,6 +19,7 @@ import { toast } from "sonner"
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/redux/userSlice";
+import API_BASE_URL from "@/api/baseUrl";
 
 
 
@@ -90,7 +91,7 @@ export default function SignupPage() {
         }
         try {
             setLoading(true)
-            const res = await axios.post('http://localhost:5000/api/v1/user/register', formData, {
+            const res = await axios.post(`${API_BASE_URL}/api/v1/user/register`, formData, {
                 headers: {
                     "Content-Type": "application/json"
                 }
@@ -120,7 +121,7 @@ export default function SignupPage() {
             }
 
             const res = await axios.post(
-                `http://localhost:5000/api/v1/user/varifyotp/${email}`,
+                `${API_BASE_URL}/api/v1/user/varifyotp/${email}`,
                 { otp }
             );
 
@@ -161,7 +162,7 @@ export default function SignupPage() {
 
         try {
             const res = await axios.post(
-                `http://localhost:5000/api/v1/user/resend-otp/${email}`
+                `${API_BASE_URL}/api/v1/user/resend-otp/${email}`
             );
 
             if (res.data.success) {

@@ -18,7 +18,8 @@ import { toast } from "sonner"
 import axios from "axios";
 import { useDispatch, } from "react-redux";
 import { setUser } from "@/redux/userSlice";
-import { forgotpassword } from "@/api/userApi";
+import API_BASE_URL from "@/api/baseUrl";
+
 
 
 
@@ -54,10 +55,10 @@ export default function loginPage() {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-        console.log(formData)
+     //   console.log(formData)
         try {
             setLoading(true)
-            const res = await axios.post('http://localhost:5000/api/v1/user/logIn', formData, {
+            const res = await axios.post(`${API_BASE_URL}/api/v1/user/logIn`, formData, {
                 headers: {
                     "Content-Type": "application/json"
                 }
@@ -72,8 +73,8 @@ export default function loginPage() {
             }
 
         } catch (error) {
-            // console.log(error)
-            toast.error(error.response.data.message)
+             console.log(error)
+           // toast.error(error.response.data.message)
         } finally {
             setLoading(false)
         }
@@ -84,7 +85,7 @@ export default function loginPage() {
         const email = formData.email
         console.log(email)
         try {
-            const response = await axios.post(`http://localhost:5000/api/v1/user/forgotpassword`, { email })
+            const response = await axios.post(`${API_BASE_URL}/api/v1/user/forgotpassword`, { email })
             if(response.data.success){
                navigate("/emailsent")
             }
