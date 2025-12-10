@@ -12,7 +12,7 @@ import categoryRouter from './routes/categoryRoute.js'
 
 
 const app = Express()
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT || 5000
 
 // middleware
 
@@ -50,15 +50,19 @@ app.use("/api/v1/category",categoryRouter)
 app.use("/api/v1/admin",adminRoute)
 app.use("/api/v1/cart",cartRoute)
 
-app.use(errorHandler)
 
 
 
+const startServer = async () => {
+  try {
+    await connectDB(); // ✅ Connect first
+    app.listen(PORT, () => {
+      console.log(`🚀 Server Ekdum Ok hai aur port ${PORT} hai`);
+    });
+  } catch (error) {
+    console.error("❌ Server failed to start due to DB error");
+    process.exit(1);
+  }
+};
 
-// https://localhost:5000/api/v1/user/register
-
-
-app.listen(PORT,()=>{
-    connectDB()
-    console.log(`Sever Ekdum Ok hai aur port ${PORT} hai`)
-})
+startServer();
