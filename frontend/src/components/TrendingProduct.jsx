@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import ProductCarousel from "./ProductCarousel.jsx";
 import ProductCard from "./ProductCard.jsx";
 import { Link } from "react-router-dom";
+import API_BASE_URL from "@/api/baseUrl.js";
 
 
 
@@ -25,7 +26,7 @@ export default function TrendingProduct() {
         // Fetch products or any other data if needed
         try {
             const fetchData = async () => {
-                const res = await axios.get("http://localhost:5000/api/v1/product/allProducts");
+                const res = await axios.get(`${API_BASE_URL}/api/v1/product/allProducts`);
                 if (res.data.success) {
                     dispatch(setProducts(res.data.products));
                 }

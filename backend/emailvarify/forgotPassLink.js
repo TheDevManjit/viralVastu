@@ -23,7 +23,7 @@ export const forgotPassLink = (token, email) => {
           We received a request to reset your password. Click the button below to set up a new one:
         </p>
         <div style="text-align: center; margin: 30px 0;">
-          <a href="http://localhost:5173/changepassword/${token}" 
+          <a href="https://viralvastu-frontend.onrender.com/changepassword/${token}" 
              style="background-color: #007bff; color: white; text-decoration: none; padding: 12px 25px; border-radius: 6px; font-weight: bold; display: inline-block;">
             Reset Password
           </a>

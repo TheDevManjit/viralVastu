@@ -1,11 +1,12 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import axios from 'axios'
+import API_BASE_URL from '@/api/baseUrl'
 
 export const fetchCart = createAsyncThunk(
     'cart/fetchCart',           // action type
     async (_, { rejectWithValue }) => {
         try {
-            const response = await axios.get('http://localhost:5000/api/v1/cart/get-cart', {
+            const response = await axios.get(`${API_BASE_URL}/api/v1/cart/get-cart`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
                 },
@@ -22,7 +23,7 @@ export const addToCart = createAsyncThunk(
     'cart/addToCart',
     async ({ productId, quantity }, { rejectWithValue }) => {
         try {
-            const response = await axios.post('http://localhost:5000/api/v1/cart/add-to-cart',
+            const response = await axios.post(`${API_BASE_URL}/api/v1/cart/add-to-cart`,
                 { productId, quantity },
                 {
                     headers: {
@@ -42,7 +43,7 @@ export const removeItem = createAsyncThunk(
     'cart/removeCart',
     async ({ productId }, { rejectWithValue }) => {
         try {
-            const response = await axios.post('http://localhost:5000/api/v1/cart/remove',
+            const response = await axios.post(`${API_BASE_URL}/api/v1/cart/remove`,
                 { productId },
                 {
                     headers: {

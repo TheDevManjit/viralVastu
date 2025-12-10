@@ -19,6 +19,7 @@ import { toast } from "sonner"
 import profileLogo from '../assets/profileLogo.jpg'
 import { setUser } from "@/redux/userSlice";
 import axios from "axios";
+import API_BASE_URL from "@/api/baseUrl";
 
 
 export default function Profile() {
@@ -33,7 +34,7 @@ export default function Profile() {
         address: user?.address,
         city: user?.city,
         zipcode: user?.zipcode,
-
+        role:user?.role,
         phoneNo: user?.phoneNo,
         profilePic: user?.profilePic,
         email: user?.email,
@@ -84,7 +85,7 @@ export default function Profile() {
             }
 
             console.log(userId)
-            const res = await axios.put(`http://localhost:5000/api/v1/user/update/${userId}`, formData, {
+            const res = await axios.put(`${API_BASE_URL}/api/v1/user/update/${userId}`, formData, {
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
                     "Content-type": "multipart/form-data"

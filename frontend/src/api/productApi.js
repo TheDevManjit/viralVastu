@@ -1,12 +1,11 @@
 import axios from "axios"
-
-const baseUrl = 'http://localhost:5000/api/v1/product'
+import API_BASE_URL from "./baseUrl"
 
 const getAllProducts = async () => {
 
     try {
 
-        const res = await axios.get(`http://localhost:5000/api/v1/product/allProducts`)
+    const res = await axios.get(`${API_BASE_URL}/api/v1/product/allProducts`)
         if (res.data.success) {
             // console.log(res.data.products)
             return res.data.products
@@ -24,7 +23,7 @@ const getAllProducts = async () => {
 const getProductById = async (id) => {
 
     try {
-        const response = await axios.get(`http://localhost:5000/api/v1/product/product/${id}`);
+        const response = await axios.get(`${API_BASE_URL}/api/v1/product/product/${id}`);
         return response.data
     } catch (error) {
         console.error("Error fetching product:", error);

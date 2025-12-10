@@ -520,7 +520,7 @@ const updateUser = async (req, res) => {
         const loggedInUser = req.user
 
 
-        const { firstName, lastName, address, city, zipcode, phoneNo, role, email } = req.body;
+        const { firstName, lastName, address, city, zipcode, phoneNo,role, email } = req.body;
 
         if (
             loggedInUser._id.toString() !== userIdToUpdate &&

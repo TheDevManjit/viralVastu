@@ -58,7 +58,7 @@ export default function loginPage() {
      //   console.log(formData)
         try {
             setLoading(true)
-            const res = await axios.post(`${API_BASE_URL}/api/v1/user/logIn`, formData, {
+            const res = await axios.post(`${API_BASE_URL}/api/v1/user/login`, formData, {
                 headers: {
                     "Content-Type": "application/json"
                 }

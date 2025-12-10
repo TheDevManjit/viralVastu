@@ -9,6 +9,7 @@ import { setUser } from "@/redux/userSlice";
 import { toast } from "sonner";
 import { getAllProducts } from "@/api/productApi";
 import { fetchCart } from "@/redux/cartSlice";
+import API_BASE_URL from "@/api/baseUrl";
 
 const Navbar = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -27,7 +28,7 @@ const Navbar = () => {
   const logoutHandler = async () => {
     try {
       const res = await axios.post(
-        `http://localhost:5000/api/v1/user/logout/`,
+        `${API_BASE_URL}/api/v1/user/logout/`,
         {},
         {
           headers: {
@@ -125,7 +126,7 @@ const Navbar = () => {
     };
   }, [drawerOpen]);
 
-  if (loading) return <p>Loading...</p>;
+  // if (loading) return <p>Loading...</p>;
 
   const cartCount = cart?.items?.length || 0;
 
@@ -192,7 +193,7 @@ const Navbar = () => {
                   <div className="hidden group-hover:flex absolute w-30 h-24 bg-white top-6 rounded text-black transition delay-150 duration-300 ease-in-out">
                    <ul className="p-2">
                     <li className="hover:bg-gray-200 rounded p-2">
-                        <Link to={`profile/:userId`}>Profile</Link>
+                        <Link to={`profile/${user._id}`}>Profile</Link>
                     </li>
                     <li className="hover:bg-gray-200 rounded p-2">
                         <Link to={`/orders`}>Orders</Link>

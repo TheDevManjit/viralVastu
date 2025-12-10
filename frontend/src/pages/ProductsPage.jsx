@@ -7,7 +7,7 @@ import { setProducts } from "@/redux/productSlice.js";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { Hand } from "lucide-react";
-
+import API_BASE_URL from "@/api/baseUrl.js";
 
 
 
@@ -47,7 +47,7 @@ export default function ProductsPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/v1/product/allProducts");
+        const res = await axios.get(`${API_BASE_URL}/api/v1/product/allProducts`);
         if (res.data.success) {
           dispatch(setProducts(res.data.products));
         }

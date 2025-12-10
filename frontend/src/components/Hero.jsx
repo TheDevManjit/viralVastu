@@ -19,7 +19,7 @@ const Hero = () => {
     return (
         <>
 
-            <section className=" mt-20 bg-blue-600 py-12  rounded-b-3xl shadow-blue-200/50 bg-gradient-to-br from-blue-300 via-blue-400 to-indigo-700 lg:h-[500px]">
+            <section className=" mt-20 bg-blue-600 md:py-12 pt-24 rounded-b-3xl shadow-blue-200/50 bg-gradient-to-br from-blue-300 via-blue-400 to-indigo-700 lg:h-[500px]">
               
 
                 <div className=" mx-auto px-4 ">
