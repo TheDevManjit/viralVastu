@@ -122,7 +122,7 @@ const getAllProducts = async (req, res) => {
         // console.log(products)
 
     } catch (error) {
-        res.status(500).json({ success: false, message: err.message });
+        res.status(500).json({ success: false, message: error.message });
     }
 
 }
