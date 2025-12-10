@@ -80,7 +80,7 @@ export default function ProductPage() {
 
 
   return (
-    <section className="max-w-7xl mx-auto px-6 py-12 grid md:grid-cols-2 gap-8 mt-20">
+    <section className="max-w-7xl mx-auto px-6 lg:py-12 py-20 grid md:grid-cols-2 gap-8 mt-20">
       <div>
         <div className="gap-2 hidden md:flex ">
           {/* Thumbnail Swiper */}

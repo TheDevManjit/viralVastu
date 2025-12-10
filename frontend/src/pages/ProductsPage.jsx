@@ -94,12 +94,6 @@ export default function ProductsPage() {
 
 
       })
-       ?.filter(
-      (p) => brand === "All" || p.productBrand.toLowerCase() === brand.toLowerCase()
-    )
-    ?.filter(
-      (p) => p.productPrice >= priceRange[0] && p.productPrice <= priceRange[1]
-    )
 
   }
 
@@ -120,7 +114,7 @@ export default function ProductsPage() {
 
     <>
 
-      <div className="pt-20 pb-10 bg-white min-h-screen l">
+      <div className="lg:pt-20 pt-34 pb-10 bg-white min-h-screen l">
 
         {/* Main Container */}
         <div className="max-w-[1350] mx-auto px-4 flex flex-col lg:flex-row gap-6 align-middle items-top">
@@ -140,7 +134,7 @@ export default function ProductsPage() {
           <div className="flex-1 flex flex-col w-full">
 
             {/* Sort Section */}
-            <div className="mb-4 flex justify-end">
+            <div className="mb-4 flex lg:justify-end justify-start">
               <select name="sort" id="sort" onChange={handleSort}>
                 <option value="default">Sort By</option>
                 <option value="priceLowToHigh" onClick={() => { sorting('lowToHigh') }}>Price: Low to High</option>

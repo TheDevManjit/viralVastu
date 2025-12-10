@@ -81,14 +81,13 @@ const router = createBrowserRouter(
         <Route path='/cart' element={<CartPage />} />
         <Route path="*" element={<NotFound />} />
         <Route path="/under-construction" element={<UnderConstruction />} />
-        
+
 
       </Route>
 
       <Route path='/cart' element={<CartLayout />}>
         <Route path='' element={<CartPage />} />
-         <Route path="*" element={<NotFound />} />
-        <Route path="/under-construction" element={<UnderConstruction />} />
+       
       </Route>
     </>
 

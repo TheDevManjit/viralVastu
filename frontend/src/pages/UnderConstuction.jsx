@@ -9,11 +9,11 @@ const UnderConstruction = () => {
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-br from-yellow-50 to-yellow-100 text-center px-4">
      
-      <img
+      {/* <img
         src="/construction.svg"
         alt="Under Construction"
         className="w-64 md:w-96 mb-6 animate-bounce-slow"
-      />
+      /> */}
 
      
       <h1 className="text-4xl md:text-5xl font-extrabold text-yellow-600 mb-2 flex items-center gap-2">

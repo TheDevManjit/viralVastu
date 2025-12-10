@@ -8,11 +8,11 @@ const NotFound = () => {
 
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-br from-blue-50 to-blue-100 text-center px-4">
-      <img
+      {/* <img
         src="/404.svg"
         alt="404 Not Found"
         className="w-64 md:w-96 mb-6"
-      />
+      /> */}
       <h1 className="text-6xl md:text-8xl font-extrabold text-blue-600 mb-2">
         404
       </h1>
