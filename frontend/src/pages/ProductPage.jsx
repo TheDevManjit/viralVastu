@@ -9,6 +9,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { addToCart } from "../redux/cartSlice.js";
+import ProductCarousel from "../components/ProductCarousel.jsx";
+import { Skeleton } from "../components/ui/skeleton.jsx";
+
 
 
 export default function ProductPage() {
@@ -20,7 +23,7 @@ export default function ProductPage() {
   const { user } = useSelector(store => store.user)
   const navigate = useNavigate();
   const dispatch = useDispatch()
-  
+
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -66,7 +69,7 @@ export default function ProductPage() {
       toast.error("Invalid product. Cannot add to cart.");
       return;
     }
-    console.log(product._id,"  " ,quantity)
+    console.log(product._id, "  ", quantity)
 
     dispatch(addToCart({ productId: product._id, quantity }))
     navigate("/cart")
@@ -78,46 +81,71 @@ export default function ProductPage() {
 
   return (
     <section className="max-w-7xl mx-auto px-6 py-12 grid md:grid-cols-2 gap-8 mt-20">
-      {/* === LEFT: Images === */}
-      <div className="flex gap-4">
-        {/* Thumbnail Swiper */}
-        <Swiper
-          direction="vertical"
-          slidesPerView={4}
-          spaceBetween={10}
-          onSwiper={setThumbsSwiper}
-          watchSlidesProgress
-          modules={[Thumbs]}
-          className="w-[90px] h-[450px] rounded-lg overflow-hidden"
-        >
-          {product.productImg?.map((img, i) => (
-            <SwiperSlide key={i}>
-              <img
-                src={img.url}
-                alt={`thumb-${i}`}
-                className="cursor-pointer rounded-lg border hover:border-blue-500 object-cover"
-              />
-            </SwiperSlide>
-          ))}
-        </Swiper>
+      <div>
+        <div className="gap-2 hidden md:flex ">
+          {/* Thumbnail Swiper */}
+          <Swiper
+            direction="vertical"
+            slidesPerView={4}
+            spaceBetween={10}
+            onSwiper={setThumbsSwiper}
+            watchSlidesProgress
+            modules={[Thumbs]}
+            className="w-[90px] h-[450px] rounded-lg overflow-hidden"
+          >
+            {product.productImg?.map((img, i) => (
+              <SwiperSlide key={i}>
+                <img
+                  src={img.url}
+                  alt={`thumb-${i}`}
+                  className="cursor-pointer rounded-lg border hover:border-blue-500 object-cover"
+                />
+              </SwiperSlide>
+            ))}
+          </Swiper>
 
-        {/* Main Image Swiper */}
-        <Swiper
-          thumbs={{ swiper: thumbsSwiper }}
-          modules={[Thumbs]}
-          className="w-full h-[450px] rounded-xl overflow-hidden shadow-md"
-        >
-          {product.productImg?.map((img, i) => (
-            <SwiperSlide key={i}>
-              <img
-                src={img.url}
-                alt={`main-${i}`}
-                className="w-full h-full object-contain"
-              />
-            </SwiperSlide>
-          ))}
-        </Swiper>
+          {/* Main Image Swiper */}
+          <Swiper
+            thumbs={{ swiper: thumbsSwiper }}
+            modules={[Thumbs]}
+            className="lg:w-full h-[450px] rounded-xl overflow-hidden shadow-md"
+          >
+            {product.productImg?.map((img, i) => (
+              <SwiperSlide key={i}>
+                <img
+                  src={img.url}
+                  alt={`main-${i}`}
+                  className="w-full h-full object-contain"
+                />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+
+
+
+        </div>
+
+        <div className="hidden md:flex">
+          <p className="p-4 text-xl ">{product.productDescription}</p>
+        </div>
+        <div>
+          {/* Mobile Main Image */}
+          <div className="md:hidden w-full h-[350px] rounded-xl overflow-hidden shadow-md mb-6">
+            {
+
+              loading ? <Skeleton /> :
+                <ProductCarousel
+                  productImg={[...product.productImg]}
+                  alt={product.productName}
+
+                />
+            }
+          </div>
+          
+        </div>
       </div>
+
+
 
       {/* === RIGHT: Product Info === */}
       <div className="space-y-4">

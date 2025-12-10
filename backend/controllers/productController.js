@@ -25,6 +25,8 @@ const addProduct = async (req, res) => {
 
         // console.log("productStock", productStock)
 
+        console.log(productCategory)
+
 
         if (!productName || !productDescription || !productPrice || !productCategory || !productStock) {
             return res.status(400).json({
@@ -74,7 +76,6 @@ const addProduct = async (req, res) => {
             productRating,
             productReviews,
             productCategory,
-            productSubCategory,
             productBrand,
             productStock: Number(productStock),
             isTrending: isTrending === "true" || isTrending === true,
@@ -141,7 +142,7 @@ const getProductById = async (req, res) => {
 
         res.status(200).json({
             success: true,
-             product
+            product
         })
 
     } catch (error) {
@@ -166,7 +167,6 @@ const updateProduct = async (req, res) => {
             productRating,
             productReviews,
             productCategory,
-            productSubCategory,
             productBrand,
             productStock,
             isTrending,
@@ -174,6 +174,7 @@ const updateProduct = async (req, res) => {
         } = req.body;
 
 
+        console.log(productCategory );
         // finding products
 
         const product = await Product.findById(id)
@@ -207,22 +208,51 @@ const updateProduct = async (req, res) => {
             }
         }
 
-        Object.assign(product, {
-            ...(productName && { productName }),
-            ...(productDescription && { productDescription }),
-            ...(productPrice && { productPrice }),
-            ...(productOriginalPrice && { productOriginalPrice }),
-            ...(productRating && { productRating }),
-            ...(productReviews && { productReviews }),
-            ...(productCategory && { productCategory }),
-            ...(productSubCategory && { productSubCategory }),
-            ...(productBrand && { productBrand }),
-            ...(productStock && { productStock }),
-            ...(isTrending !== undefined && {
-                isTrending: isTrending === "true" || isTrending === true,
-            }),
-            productImg: images,
-        });
+
+        if (productName) {
+            product.productName = productName;
+        }
+
+        if (productDescription) {
+            product.productDescription = productDescription;
+        }
+
+        if (productPrice) {
+            product.productPrice = productPrice;
+        }
+
+        if (productOriginalPrice) {
+            product.productOriginalPrice = productOriginalPrice;
+        }
+
+        if (productRating) {
+            product.productRating = productRating;
+        }
+
+        if (productReviews) {
+            product.productReviews = productReviews;
+        }
+
+        if (productCategory) {
+            product.productCategory = productCategory;
+        }
+
+        if (productBrand) {
+            product.productBrand = productBrand;
+        }
+
+        if (productStock) {
+            product.productStock = productStock;
+        }
+
+        // Special handling for "isTrending" — it might come as a string like "true"
+        if (isTrending !== undefined) {
+            product.isTrending = isTrending === "true" || isTrending === true;
+        }
+
+        // Always set product images
+        product.productImg = images;
+
 
         await product.save()
 

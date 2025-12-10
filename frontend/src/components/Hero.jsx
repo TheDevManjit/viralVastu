@@ -19,10 +19,10 @@ const Hero = () => {
     return (
         <>
 
-            <section className=" mt-20 bg-blue-600 py-12 rounded-b-3xl shadow-blue-200/50 bg-gradient-to-br from-blue-300 via-blue-400 to-indigo-700 lg:h-[500px]">
+            <section className=" mt-20 bg-blue-600 py-12  rounded-b-3xl shadow-blue-200/50 bg-gradient-to-br from-blue-300 via-blue-400 to-indigo-700 lg:h-[500px]">
               
 
-                <div className="max-w-7xl mx-auto px-4 ">
+                <div className=" mx-auto px-4 ">
                     <div className="grid md:grid-cols-2 gap-8 justify-around items-center">
 
                         <div>

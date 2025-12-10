@@ -15,9 +15,8 @@ export default function HomePage() {
 
         <>
             <Hero />
-             <Category />
+            <Category />
             <TrendingProduct />
-            
             <Features />
            
         </>

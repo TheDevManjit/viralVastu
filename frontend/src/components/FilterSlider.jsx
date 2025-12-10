@@ -4,22 +4,16 @@ import { useSelector } from "react-redux";
 
 export default function FilterSlider({
   category,
-  setCategory,
   brand,
   setBrand,
   priceRange,
   setPriceRange,
 }) {
   const { products } = useSelector((store) => store.products);
-
-  // Generate unique categories & brands from new backend fields
-  const uniqueCategory = ["All", ...new Set(products.map((p) => p.productCategory))];
   const uniqueBrands = ["All", ...new Set(products.map((p) => p.productBrand))];
 
   // Handlers
-  const handleCategory = (item) => {
-    setCategory(item);
-  };
+
 
   const handleBrandChange = (e) => {
     setBrand(e.target.value);
@@ -43,7 +37,6 @@ export default function FilterSlider({
 
   const resetFilters = () => {
     setSearch("");
-    setCategory("All");
     setBrand("All");
     setPriceRange([0, 999999]);
   };
@@ -53,7 +46,7 @@ export default function FilterSlider({
       {/* Category */}
       <h2 className="mt-5 font-semibold text-xl">Categories</h2>
       <div className="flex flex-col gap-2 mt-3">
-        <span>{category}</span>
+        <span>{category.split(/[,]/)[0].toUpperCase()}</span>
       </div>
 
       {/* Brands */}

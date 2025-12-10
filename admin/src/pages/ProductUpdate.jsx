@@ -1,22 +1,20 @@
 import React, { use, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { getProductById, updateProduct } from '@/api/productApi'
-import { TextField, Button, Card, CardContent, CardHeader } from "@mui/material"
+import { TextField, Button, Card, CardContent, CardHeader, Input, } from "@mui/material"
 import { toast } from 'sonner'
-import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { FormControl, InputLabel, Select, MenuItem, } from '@mui/material';
 import { useSelector } from 'react-redux';
+import { fetchCategories } from '@/redux/categorySlice'
+import { useDispatch } from 'react-redux';
 
 
 function ProductUpdate() {
   const { id } = useParams();
   const { products } = useSelector(store => store.products);
-
+  const { categories, loading, error } = useSelector(state => state.categories)
   const [product, setProduct] = useState(null);
   const [categoryOptions, setCategoryOptions] = useState([])
-  const [subCategoryOptions, setSubCategoryOptions] = useState([])
-  const [customCategory, setCustomCategory] = useState("");
-  const [customSubCategory, setCustomSubCategory] = useState("");
-  const [currentSubCategories, setCurrentSubCategories] = useState([]);
   const [existingImage, setExistingImage] = useState([]);
   const [files, setFiles] = useState([]);
 
@@ -28,46 +26,14 @@ function ProductUpdate() {
     productOriginalPrice: "",
     productRating: "",
     productReviews: 0,
-    productCategory: "",
-    productSubCategory: "",
+    productCategory: [],
     productBrand: "",
     productStock: "",
     isTrending: false,
     productImg: [],
   });
 
-
-  useEffect(() => {
-    if (products && products.length > 0) {
-      const categories = [...new Set(products.map(p => p.productCategory))]
-      setCategoryOptions(categories)
-      console.log(categories)
-
-    }
-  }, [products])
-
-  useEffect(() => {
-    if (form.productCategory && products.length > 0) {
-      const filtered = products.filter(
-        p => p.productCategory === form.productCategory
-      );
-      const subCats = [...new Set(filtered.map(p => p.productSubCategory))];
-      setCurrentSubCategories(subCats);
-
-      if (!subCats.includes(form.productSubCategory)) {
-        setForm(prev => ({ ...prev, productSubCategory: "" }));
-      }
-    } else {
-      // If user resets category to "All"
-      const allSubs = [...new Set(products.map(p => p.productSubCategory))];
-      setCurrentSubCategories(allSubs);
-      if (!allSubs.includes(form.productSubCategory)) {
-        setForm(prev => ({ ...prev, productSubCategory: "" }));
-      }
-
-    }
-  }, [form.productCategory, products]);
-
+  const dispatch = useDispatch();
 
 
   useEffect(() => {
@@ -78,22 +44,49 @@ function ProductUpdate() {
       console.log(res.data.product)
       // Fill form
       setForm({
-        ...res.data.product,
+        ...res.data.product, productCategory: res.data.product.productCategory.map(cat =>
+          typeof cat === "object" ? cat.value : cat
+        ),
         productImg: res.data.product.productImg, // only actual cloud images
       });
 
+      console.log(res.data.product.productCategory)
+
       // Store cloudinary ids for backend
       setExistingImage(res.data.product.productImg.map(img => img.public_id));
+
     };
 
     fetchProduct();
   }, [id]);
 
+  console.log("form category", form.productCategory)
+
+
+  useEffect(() => {
+
+    dispatch(fetchCategories())
+    //    console.log(categories)
+
+  }, [])
+
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setForm({ ...form, [name]: type === "checkbox" ? checked : value });
+
+    setForm((prev) => ({
+      ...prev,
+      [name]:
+        type === "checkbox"
+          ? checked
+          : Array.isArray(value)  // for multiple select fields
+            ? value
+            : value,
+    }));
   };
+
+
+
 
 
   const handleImageUpload = (e) => {
@@ -109,11 +102,13 @@ function ProductUpdate() {
     }));
 
     // Add local previews
+
     setForm(prev => ({
       ...prev,
       productImg: [...prev.productImg, ...previews]
     }));
   };
+
 
   const removeExistingImage = (public_id) => {
     setExistingImage(prev => prev.filter(id => id !== public_id));
@@ -134,16 +129,12 @@ function ProductUpdate() {
     }));
   };
 
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     // text fields
-    const finalCategory =
-      form.productCategory === "custom" ? customCategory : form.productCategory;
-
-    const finalSubCategory =
-      form.productSubCategory === "custom" ? customSubCategory : form.productSubCategory;
-
 
     const fd = new FormData();
 
@@ -153,8 +144,7 @@ function ProductUpdate() {
     fd.append("productOriginalPrice", form.productOriginalPrice);
     fd.append("productRating", form.productRating);
     fd.append("productReviews", form.productReviews);
-    fd.append("productCategory", finalCategory);
-    fd.append("productSubCategory", finalSubCategory);
+    form.productCategory.forEach(cat => fd.append("productCategory[]", cat))
     fd.append("productBrand", form.productBrand);
     fd.append("productStock", form.productStock);
     fd.append("isTrending", form.isTrending);
@@ -188,25 +178,79 @@ function ProductUpdate() {
       <Card className="w-full  shadow-xl rounded-2xl ">
         <CardHeader title="Update Product" className="text-center" />
         <CardContent className=''>
-          <form onSubmit={handleSubmit} className="space-y-6 flex flex-col gap-2">
+          <form onSubmit={handleSubmit} className="space-y-2 flex flex-col gap-2">
+            <div>
+              <TextField
+                label="Product Name"
+                fullWidth
+                name="productName"
+                value={form.productName}
+                onChange={handleChange}
+              />
+            </div>
 
-            <TextField
-              label="Product Name"
-              fullWidth
-              name="productName"
-              value={form.productName}
-              onChange={handleChange}
-            />
+            <div className='grid grid-cols-2 gap-2 mt-1'>
+              {
+                products.length > 0 && (
+                  <div>
+                    <TextField
+                      label="Existing Category"
+                      fullWidth
+                      name="productDescription"
+                      value={product.productCategory}
+                      disabled
 
-            <TextField
-              label="Description"
-              fullWidth
-              name="productDescription"
-              value={form.productDescription}
-              onChange={handleChange}
-              multiline
-              rows={3}
-            />
+                    />
+                  </div>
+                )
+              }
+              {console.log("form values:", form.productCategory)}
+              {
+                categories.length > 0 && (
+                  <div>
+                    <FormControl fullWidth>
+                      <InputLabel>Update Category</InputLabel>
+                      <Select
+                        name="productCategory"
+                        value={[...form.productCategory]}
+
+                        onChange={handleChange}
+                        label="Category"
+                        multiple
+
+                      >
+                         
+                        {categories.map((cat) => (
+                          <MenuItem key={cat._id} value={cat.value}>
+                            {cat.label}
+                          </MenuItem>
+                        ))}
+
+                      </Select>
+                    </FormControl>
+
+                  </div>
+                )
+              }
+
+            </div>
+
+
+            <div>
+              <TextField
+                label="Description"
+                className=''
+                fullWidth
+                name="productDescription"
+                value={form.productDescription}
+                onChange={handleChange}
+                multiline
+                rows={3}
+              />
+
+            </div>
+
+
 
             <div className="grid grid-cols-2 gap-4">
               <TextField
@@ -224,69 +268,6 @@ function ProductUpdate() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-
-              {/* CATEGORY */}
-              {
-                products.length > 0 && (
-                  <div>
-                    <FormControl fullWidth>
-                      <InputLabel>Category</InputLabel>
-                      <Select
-                        name="productCategory"
-                        value={form.productCategory || ""}
-                        onChange={handleChange}
-                        label="Category"
-                      >
-                        {categoryOptions.map(cat => (
-                          <MenuItem key={cat} value={cat}>{cat}</MenuItem>
-                        ))}
-                        <MenuItem value="custom">Add New Category</MenuItem>
-                      </Select>
-                    </FormControl>
-
-                    {form.productCategory === "custom" && (
-                      <TextField
-                        label="New Category"
-                        fullWidth
-                        value={customCategory}
-                        onChange={(e) => setCustomCategory(e.target.value)}
-                      />
-                    )}
-                  </div>
-                )
-              }
-
-
-              {/* SUBCATEGORY */}
-              <div>
-                {products && (
-                  <FormControl fullWidth>
-                    <InputLabel>Subcategory</InputLabel>
-                    <Select
-                      name="productSubCategory"
-                      value={form.productSubCategory || ""}
-                      onChange={handleChange}
-                      label="Subcategory"
-                    >
-                      {currentSubCategories.map(sub => (
-                        <MenuItem key={sub} value={sub}>{sub}</MenuItem>
-                      ))}
-                      <MenuItem value="custom">Add New Subcategory</MenuItem>
-                    </Select>
-                  </FormControl>
-                )}
-
-                {form.productSubCategory === "custom" && (
-                  <TextField
-                    label="New Subcategory"
-                    fullWidth
-                    value={customSubCategory}
-                    onChange={(e) => setCustomSubCategory(e.target.value)}
-                  />
-                )}
-              </div>
-            </div>
 
             {/* BRAND / STOCK */}
             <div className="grid grid-cols-2 gap-4">
@@ -352,17 +333,17 @@ function ProductUpdate() {
                 </span>
               </label>
 
-              <div className="grid grid-cols-3 gap-3 mt-3">
+              <div className="flex gap-2 mt-10">
                 {form.productImg.map((img, idx) => (
                   <div className="relative" key={idx}>
-                    <img src={img.url} className="w-full  object-cover rounded-xl shadow" />
+                    <img src={img.url} className="w-42  object-cover rounded-xl shadow" />
 
                     <button
                       type="button"
                       onClick={() => {
-                      if (img.local) removeNewImage(img.file);
-                      else removeExistingImage(img.public_id);
-                    }}
+                        if (img.local) removeNewImage(img.file);
+                        else removeExistingImage(img.public_id);
+                      }}
                       className="absolute top-0 right-0 bg-red-500 text-white text-xs px-1 py-0.5 rounded-bl"
                     >
                       ✕
@@ -376,7 +357,7 @@ function ProductUpdate() {
             </div>
 
             <Button type="submit" variant="contained" fullWidth className="!mt-4 !p-3">
-             update Product
+              update Product
             </Button>
 
           </form>

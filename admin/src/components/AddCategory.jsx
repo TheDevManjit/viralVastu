@@ -5,7 +5,7 @@ import {
   Card,
   CardContent,
   CardHeader,
-  FormControl, InputLabel, Select, MenuItem
+  FormControl, InputLabel, Select, MenuItem,
 } from "@mui/material";
 import { toast } from "sonner";
 import { useSelector, useDispatch } from "react-redux";
@@ -99,6 +99,8 @@ function AddCategory() {
                           value={selectedCategory}
                           onChange={handleCategory}
                           label="Category"
+                         
+                    
                         >
                           {categories.map(cat => (
                             <MenuItem key={cat._id} value={cat.value}>{cat.label}</MenuItem>

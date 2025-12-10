@@ -19,8 +19,8 @@ const productSchema = new mongoose.Schema({
     productOriginalPrice: { type: String },
     productRating: { type: String },
     productReviews: { type: Number },
-    categories: [
-        { type: mongoose.Schema.Types.ObjectId, ref: "Category" } // 👈 multiple categories
+    productCategory: [
+       
     ],
     productBrand: { type: String },
     productStock: { type: Number },

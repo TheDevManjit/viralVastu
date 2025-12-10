@@ -7,14 +7,15 @@ import store from '@/redux/store'
 import { useSelector, useDispatch } from 'react-redux'
 import { getAllProducts } from '@/api/productApi'
 import { setProducts } from '@/redux/productSlice'
+import { fetchCategories } from '@/redux/categorySlice'
 
 
 
 function ProductAdd() {
     const { products } = useSelector(store => store.products)
-    const [categoryOptions, setCategoryOptions] = useState([])
-    const [subCategoryOptions, setSubCategoryOptions] = useState([])
+    const { categories, loading, error } = useSelector(state => state.categories)
     const [enableCatEdit, setEnableCatEdit] = useState(false)
+    // const [categoriesInput,setCategories] = useState([])
     const dispatch = useDispatch()
 
 
@@ -25,16 +26,11 @@ function ProductAdd() {
         productOriginalPrice: "",
         productRating: "",
         productReviews: 0,
-        productCategory: "",
-        productSubCategory: "",
+        productCategory: [],
         productBrand: "",
         productStock: "",
         isTrending: false,
     });
-
-    const [customCategory, setCustomCategory] = useState("");
-    const [customSubCategory, setCustomSubCategory] = useState("");
-    const [currentSubCategories, setCurrentSubCategories] = useState([]);
 
 
     const [files, setFiles] = useState([]);
@@ -42,41 +38,28 @@ function ProductAdd() {
 
 
     useEffect(() => {
-        if (products && products.length > 0) {
-            const categories = [...new Set(products.map(p => p.productCategory))]
-            setCategoryOptions(categories)
-            console.log(categories)
 
-        }
-    }, [products]);
+        dispatch(fetchCategories())
+        console.log(categories)
+
+    }, [])
 
 
-    useEffect(() => {
-        if (form.productCategory && products.length > 0) {
-            const filtered = products.filter(
-                p => p.productCategory === form.productCategory
-            );
-            const subCats = [...new Set(filtered.map(p => p.productSubCategory))];
-            setCurrentSubCategories(subCats);
-
-            if (!subCats.includes(form.productSubCategory)) {
-                setForm(prev => ({ ...prev, productSubCategory: "" }));
-            }
-        } else {
-            // If user resets category to "All"
-            const allSubs = [...new Set(products.map(p => p.productSubCategory))];
-            setCurrentSubCategories(allSubs);
-            if (!allSubs.includes(form.productSubCategory)) {
-                setForm(prev => ({ ...prev, productSubCategory: "" }));
-            }
-
-        }
-    }, [form.productCategory,]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        setForm({ ...form, [name]: type === "checkbox" ? checked : value });
+
+        setForm((prev) => ({
+            ...prev,
+            [name]:
+                type === "checkbox"
+                    ? checked
+                    : Array.isArray(value)  // for multiple select fields
+                        ? value
+                        : value,
+        }));
     };
+
 
 
 
@@ -91,6 +74,7 @@ function ProductAdd() {
         }));
         setFiles(previews);
     };
+
 
     const handleRemoveImage = (index) => {
         setFiles((prev) => {
@@ -114,13 +98,6 @@ function ProductAdd() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const finalCategory =
-            form.productCategory === "custom" ? customCategory : form.productCategory;
-
-        const finalSubCategory =
-            form.productSubCategory === "custom" ? customSubCategory : form.productSubCategory;
-
-
         const fd = new FormData();
 
         fd.append("productName", form.productName);
@@ -129,8 +106,7 @@ function ProductAdd() {
         fd.append("productOriginalPrice", form.productOriginalPrice);
         fd.append("productRating", form.productRating);
         fd.append("productReviews", form.productReviews);
-        fd.append("productCategory", finalCategory);
-        fd.append("productSubCategory", finalSubCategory);
+        form.productCategory.forEach(cat => fd.append("productCategory[]", cat));
         fd.append("productBrand", form.productBrand);
         fd.append("productStock", form.productStock);
         fd.append("isTrending", form.isTrending);
@@ -157,7 +133,7 @@ function ProductAdd() {
                     productOriginalPrice: "",
                     productRating: "",
                     productReviews: 0,
-                    productCategory: "",
+                    productCategory: [],
                     productBrand: "",
                     productStock: "",
                     isTrending: false,
@@ -192,11 +168,11 @@ function ProductAdd() {
                 <div className=''>
                     <CardHeader title="Add New Product" className="text-center relative" />
 
-                    <div className={enableCatEdit ? 'flex' : "hidden"}>
+                    <div className={enableCatEdit ? 'flex w-full' : "hidden"}>
                         <AddCategory />
                     </div>
                     <div className='absolute right-15 top-3'>
-                        <Button onClick={() =>{setEnableCatEdit((prev) => !prev)}} variant="contained" className="!mt-4 !p-3 ">
+                        <Button onClick={() => { setEnableCatEdit((prev) => !prev) }} variant="contained" className="!mt-4 !p-3 ">
                             Add Category
                         </Button>
 
@@ -207,7 +183,7 @@ function ProductAdd() {
                 </div>
 
                 <CardContent className=''>
-                    <form onSubmit={handleSubmit} className="space-y-6 flex flex-col gap-2">
+                    <form onSubmit={handleSubmit} className="space-y-6 flex flex-col gap-1">
 
                         <div className="grid grid-cols-2 gap-4">
                             <TextField
@@ -225,12 +201,13 @@ function ProductAdd() {
                                             <InputLabel>Categories</InputLabel>
                                             <Select
                                                 name="productCategory"
-                                                value={form.productCategory || ""}
+                                                value={form.productCategory}
                                                 onChange={handleChange}
                                                 label="Category"
+                                                multiple
                                             >
-                                                {categoryOptions.map(cat => (
-                                                    <MenuItem key={cat} value={cat}>{cat}</MenuItem>
+                                                {categories.map(cat => (
+                                                    <MenuItem key={cat._id} value={cat.value}>{cat.label}</MenuItem>
                                                 ))}
                                                 <MenuItem value="custom">Add New Category</MenuItem>
                                             </Select>
@@ -241,16 +218,19 @@ function ProductAdd() {
                             }
                         </div>
 
+                        <div>
+                            <TextField
+                                label="Description"
+                                fullWidth
+                                name="productDescription"
+                                value={form.productDescription}
+                                onChange={handleChange}
+                                multiline
+                                rows={3}
+                            />
+                        </div>
 
-                        <TextField
-                            label="Description"
-                            fullWidth
-                            name="productDescription"
-                            value={form.productDescription}
-                            onChange={handleChange}
-                            multiline
-                            rows={3}
-                        />
+
 
                         <div className="grid grid-cols-2 gap-4">
                             <TextField
@@ -333,10 +313,10 @@ function ProductAdd() {
                                 </span>
                             </label>
 
-                            <div className="grid grid-cols-3 gap-3 mt-3">
+                            <div className="flex gap-2 mt-10 ">
                                 {files.map((img, idx) => (
                                     <div className="relative" key={idx}>
-                                        <img src={img.url} className="w-full  object-cover rounded-xl shadow" />
+                                        <img src={img.url} className="w-30 object-cover rounded-xl shadow" />
 
                                         <button
                                             type="button"

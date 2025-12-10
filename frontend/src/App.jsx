@@ -12,6 +12,9 @@ import ProductsPage from './pages/ProductsPage'
 import ProductPage from './pages/ProductPage'
 import CartPage from './pages/CartPage.jsx'
 import ChangePassword from './pages/ChangePassword'
+import CartLayout from './CartLayout.jsx'
+import NotFound from './pages/NotFound'
+import UnderConstruction from './pages/UnderConstuction'
 
 
 
@@ -56,21 +59,39 @@ import ChangePassword from './pages/ChangePassword'
 const router = createBrowserRouter(
   createRoutesFromElements(
 
-    <Route path='/' element={<Layout />}>
 
-      <Route path='' element={<HomePage />} />
-      <Route path='/signup' element={<SignupPage />} />
-      <Route path='/login' element={<LoginPage />} />
-      <Route path='/emailsent' element={<VerifyEmailSend />} />
-      <Route path='/changepassword/:token' element={<ChangePassword />} />
-      
-      <Route path='/profile/:userId' element={<Profile />} />
-      <Route path='/product/' element={<ProductsPage />} />
-      <Route path='/product/:id' element={<ProductPage />} />
-      <Route path='/cart' element={<CartPage />} />
-      <Route path='*' element={<h1 className='text-center mt-20 text-3xl'>404 Not Found</h1>} />
+    <>
 
-    </Route>
+
+
+
+
+
+      <Route path='/' element={<Layout />}>
+
+        <Route path='' element={<HomePage />} />
+        <Route path='/signup' element={<SignupPage />} />
+        <Route path='/login' element={<LoginPage />} />
+        <Route path='/emailsent' element={<VerifyEmailSend />} />
+        <Route path='/changepassword/:token' element={<ChangePassword />} />
+
+        <Route path='/profile/:userId' element={<Profile />} />
+        <Route path='/product/' element={<ProductsPage />} />
+        <Route path='/product/:id' element={<ProductPage />} />
+        <Route path='/cart' element={<CartPage />} />
+        <Route path="*" element={<NotFound />} />
+        <Route path="/under-construction" element={<UnderConstruction />} />
+        
+
+      </Route>
+
+      <Route path='/cart' element={<CartLayout />}>
+        <Route path='' element={<CartPage />} />
+         <Route path="*" element={<NotFound />} />
+        <Route path="/under-construction" element={<UnderConstruction />} />
+      </Route>
+    </>
+
 
   )
 
@@ -81,10 +102,9 @@ function App() {
 
   return (
     <>
-      <div className='overflow-y-scroll'>
+      <div className=''>
         <RouterProvider router={router} />
       </div>
-
 
     </>
   )

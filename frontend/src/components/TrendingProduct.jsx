@@ -37,14 +37,23 @@ export default function TrendingProduct() {
         }
     }, [dispatch]);
 
-    const uniqueCategories = ["All", ...new Set(products.map((prod) => prod.productCategory))];
+    const uniqueCategories = ["Electonics","Home decor","accessories"];
 
     const filteredProducts =
         activeTab === 0
             ? products
-            : products.filter((prod) => prod.productCategory === uniqueCategories[activeTab]);
+            : products.filter((prod)=>{
+                const categoriesInLowerCase = prod.productCategory.map(cat => cat.toLowerCase())
+                console.log(categoriesInLowerCase)
+                return categoriesInLowerCase.includes(uniqueCategories[activeTab].toLowerCase())
+                
+            })
 
+      
 
+            // products.forEach(element => {
+            //     console.log(element.productCategory)
+            // });
    
 
     return (
@@ -79,7 +88,7 @@ export default function TrendingProduct() {
 
                     {
                         filteredProducts.slice(0, 4).map((product) => (
-                            <div className="w-[250px] cursor-pointer">
+                            <div className="w-[250px] cursor-pointer" key={product._id}>
                                 <Link to={`/product/${product._id}`}>
                                     <ProductCarousel key={product._id} productImg={product.productImg} />
                                     <p className="line-clamp-2">{product.productName.slice(0, 10)}...</p>

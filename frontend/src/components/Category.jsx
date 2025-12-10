@@ -7,7 +7,7 @@ function Category() {
         {
             img: "/img1.jpeg",
             title: "Personal Care",
-            link: "electronics",
+            link: "accessories",
         },
         {
             img: "/a.jpeg",

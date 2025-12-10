@@ -14,6 +14,7 @@ import Loader from '@/components/Loader.jsx';
 
 const CartPage = () => {
   const { cart, loading, error } = useSelector((state) => state.cart)
+  const { user } = useSelector((state) => state.user)
   const [quantities, setQuantities] = useState({});
   const dispatch = useDispatch();
 
@@ -30,10 +31,10 @@ const CartPage = () => {
   }
 
 
+  console.log(user)
 
 
-
-  if (loading) return <div className='flex justify-center items-center h-screen text-gray-600"'><Loader/></div>
+  if (loading) return <div className='flex justify-center items-center h-screen text-gray-600"'><Loader /></div>
   if (error) return <div>Error: {error.message}</div>
 
 
@@ -48,8 +49,29 @@ const CartPage = () => {
   return (
 
     <div className="  flex flex-col md:flex-row justify-center gap-6 p-6 bg-gray-50 min-h-screen mt-20">
-      <div className=' max-w-7xl flex justify-center gap-5'>
+      <div className=' max-w-7xl flex flex-col md:flex-row justify-center gap-5'>
         <div className="flex-1 space-y-4 ">
+          <div className='border p-2 bg-white'>
+            <div className='flex justify-between mb-2'>
+              <h3>Your item delivered to :</h3>
+               <span>For change address kindly visit your profile page.</span>
+            </div>
+            
+           
+            <div>
+              <p className='font-bold capitalize'>{user && `${user.firstName} ${user.lastName}`}</p>
+              <div className='flex flex-row gap-4 capitalize'>
+                <span>{user && user.address}</span>
+                <span>{user && user.city}</span>
+                <span>{user && user.zipcode}</span>
+              </div>
+
+            </div>
+
+          </div>
+
+
+
           {cart.items.map((item) => (
 
 
@@ -133,7 +155,7 @@ const CartPage = () => {
           ))}
         </div>
 
-        <div className="w-full md:w-80 bg-white p-4 rounded-lg shadow-md h-fit">
+        <div className="w-full md:w-80 bg-white p-4 rounded-lg shadow-md h-fit md:relative fixed bottom-0 right-0 ">
           <h3 className="font-semibold mb-3">Price Details</h3>
           <div className="flex justify-around py-2 border-b">
             <p>Total Items</p>

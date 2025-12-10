@@ -6,6 +6,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { setProducts } from "@/redux/productSlice.js";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
+import { Hand } from "lucide-react";
 
 
 
@@ -17,33 +18,29 @@ import axios from "axios";
 export default function ProductsPage() {
 
   const { products } = useSelector(store => store.products);
-
   const [loading, setLoading] = useState(true);
   const [priceRange, setPriceRange] = useState([0, 99999]);
   const [category, setCategory] = useState("All");
-  const [subCategory, setSubCategory] = useState("All");
   const [brand, setBrand] = useState("All");
-
+  const [sort, setSort] = useState("")
 
   const dispatch = useDispatch();
   const location = useLocation();
 
   const [search, setSearch] = useState('');
 
- // console.log("searchQuery", searchQuery);
-
-
-
-
   useEffect(() => {
 
     const queryParams = new URLSearchParams(location.search);
     const searchQuery = queryParams.get("search") || '';
+
     setSearch(searchQuery.toLowerCase());
+
+    console.log("search quary", searchQuery)
     setBrand("All");
     setCategory(searchQuery)
-  }, [location.search]);
 
+  }, [location.search]);
 
 
 
@@ -65,55 +62,56 @@ export default function ProductsPage() {
   }, [dispatch]);
 
 
+  const handleSort = (e) => {
+    setSort(e.target.value)
+    console.log(e.target.value)
+  }
+
+  let filteredProducts = products
 
 
-  // console.log(products)
-  // console.log(priceRange[0])
-  // console.log(priceRange[1])
-
-
-  const filteredProducts = products
+  filteredProducts = products
     ?.filter(
       (p) => brand === "All" || p.productBrand.toLowerCase() === brand.toLowerCase()
     )
     ?.filter(
       (p) => p.productPrice >= priceRange[0] && p.productPrice <= priceRange[1]
     )
+
+
+
+  if (search) {
+    filteredProducts = products
+      ?.filter((prod) => {
+
+        const categoriesInLowerCase = prod.productCategory.map(cat => cat.toLowerCase())
+        console.log(categoriesInLowerCase)
+        // console.log("search", search.split(/[,]/))
+        const searchArray = search.split(/[,]/).map(term => term.trim().toLowerCase());
+
+        return searchArray.some(searchTerm =>
+          categoriesInLowerCase.includes(searchTerm))
+
+
+      })
+       ?.filter(
+      (p) => brand === "All" || p.productBrand.toLowerCase() === brand.toLowerCase()
+    )
     ?.filter(
-      (p) =>
-        search === "" ||
-        p.productName.toLowerCase().includes(search) ||
-        p.productCategory.toLowerCase().includes(search) ||
-        p.productBrand.toLowerCase().includes(search) ||
-        p.productDescription.toLowerCase().includes(search) ||
-        p.productSubCategory.toLowerCase().includes(search)
-    );
+      (p) => p.productPrice >= priceRange[0] && p.productPrice <= priceRange[1]
+    )
 
-
-    
-
-// useEffect(() => {
-//   if (filteredProducts.length > 0 && search) {
-//     // find all products matching the current search
-//     const matchedProducts = filteredProducts.filter(p =>
-//       p.productName.toLowerCase().includes(search)
-//     );
-
-//     // if at least one match found → set category
-//     if (matchedProducts.length > 0) {
-//       setCategory(matchedProducts[0].category); // 👈 sets category to the first matching product's category
-//     } else {
-//       setCategory("All"); // fallback if nothing found
-//     }
-//   }
-// }, [products, search]);
+  }
 
 
 
+  if (sort === "priceLowToHigh") {
+    filteredProducts = [...filteredProducts].sort((a, b) => a.productPrice - b.productPrice)
+  }
+  if (sort === "priceHighToLow") {
+    filteredProducts = [...filteredProducts].sort((a, b) => b.productPrice - a.productPrice)
+  }
 
-
-  // console.log("filteredProducts")
-  //  console.log(filteredProducts)
 
 
   return (
@@ -133,8 +131,6 @@ export default function ProductsPage() {
               priceRange={priceRange}
               setPriceRange={setPriceRange}
               category={category}
-              subCategory={subCategory}
-              setSubCategory={setSubCategory}
               brand={brand}
               setBrand={setBrand}
             />
@@ -145,11 +141,11 @@ export default function ProductsPage() {
 
             {/* Sort Section */}
             <div className="mb-4 flex justify-end">
-              <select name="sort" id="sort">
+              <select name="sort" id="sort" onChange={handleSort}>
                 <option value="default">Sort By</option>
-                <option value="priceLowToHigh">Price: Low to High</option>
+                <option value="priceLowToHigh" onClick={() => { sorting('lowToHigh') }}>Price: Low to High</option>
                 <option value="priceHighToLow">Price: High to Low</option>
-                <option value="newestFirst">Newest First</option>
+                {/* <option value="newestFirst">Newest First</option> */}
               </select>
             </div>
 
@@ -164,8 +160,8 @@ export default function ProductsPage() {
               w-full
           ">
               {filteredProducts.map(product => (
-                <ProductCard key={product._id} {...product} loading={loading}  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
- />
+                <ProductCard key={product._id} {...product} loading={loading} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                />
               ))}
             </div>
 
