@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "this is fullstack project",
   "main": "index.js",
-  "scripts": {
-    "start": "nodemon server.js"
-  },
+ "scripts": {
+  "dev": "nodemon server.js",
+  "start": "node server.js"
+},
   "type": "module",
   "author": "",
   "license": "ISC",
