@@ -50,7 +50,7 @@ export default function SignupPage() {
 
     const queryParams = new URLSearchParams(location.search);
     const email = queryParams.get("email");
-    console.log(email)
+   // console.log(email)
 
     function handleChange(e) {
         const { name, value } = e.target;
@@ -180,7 +180,7 @@ export default function SignupPage() {
 
     return (
 
-        <div className="items-center min-h-screen flex   justify-center bg-sky-100 pt-10 relative">
+        <div className="items-center min-h-screen flex mt-4 justify-center bg-sky-100 pt-10  relative">
             <div className="md:w-[750px] w-full md:grid grid-cols-2 gap-4 bg-linear-to-r from-blue-400 to-blue-200 p-5 rounded m">
                 <div className="max-w-sm mt-5">
                     <p className="text-3xl font-bold flex flex-col justify-between gap-4">Explore <span className="text-yellow-300 font-extrabold">Biggest Collection</span>  of <span className="text-yellow-300 font-extrabold" > Trending Products</span></p>

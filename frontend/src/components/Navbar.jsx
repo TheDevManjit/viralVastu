@@ -180,7 +180,7 @@ const Navbar = () => {
             {/* Right side */}
             <div className="hidden md:flex items-center space-x-6">
               <Link
-                to="/product"
+                to="/products"
                 className="hover:text-green-600 border border-transparent transition font-medium hover:border hover:border-[#676D6C] rounded p-1"
               >
                 Products
@@ -320,7 +320,7 @@ const Navbar = () => {
             {/* Links */}
             <div className="p-2 grow overflow-y-auto">
               <Link
-                to="/product"
+                to="/products"
                 onClick={() => setDrawerOpen(false)}
                 className="block px-4 py-3 rounded-md hover:bg-gray-100"
               >

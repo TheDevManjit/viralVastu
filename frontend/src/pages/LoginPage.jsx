@@ -37,6 +37,7 @@ export default function loginPage() {
         password: ''
     })
     const [forgotPass, setForgotPass] = useState(false)
+    const [error, setError] = useState('')
     const dispatch = useDispatch()
 
 
@@ -55,7 +56,7 @@ export default function loginPage() {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-     //   console.log(formData)
+        //   console.log(formData)
         try {
             setLoading(true)
             const res = await axios.post(`${API_BASE_URL}/api/v1/user/login`, formData, {
@@ -70,13 +71,18 @@ export default function loginPage() {
                 localStorage.setItem('user', res.data.user)
                 navigate("/")
                 toast.success(res.data.message)
+
+            } else {
+                toast.success(res.data.message)
             }
 
         } catch (error) {
-             console.log(error)
-           // toast.error(error.response.data.message)
+            // console.log ("THis is Error message",error)
+            toast.error(error.response.data.message)
+            setError(error.response.data.message)
         } finally {
             setLoading(false)
+            // setError("")
         }
 
     }
@@ -86,8 +92,8 @@ export default function loginPage() {
         console.log(email)
         try {
             const response = await axios.post(`${API_BASE_URL}/api/v1/user/forgotpassword`, { email })
-            if(response.data.success){
-               navigate("/emailsent")
+            if (response.data.success) {
+                navigate("/emailsent")
             }
         } catch (error) {
             toast.error(error.response.data.message || "Something went wrong")
@@ -155,6 +161,11 @@ export default function loginPage() {
 
 
                         </div>
+                        {
+                            error &&
+                            <span className="text-red-600"> {error}  </span>
+                        }
+                         
                         {(
                             !forgotPass ?
                                 <span className="text-sm mx-2  hover:underline hover:text-yellow-600"><Link

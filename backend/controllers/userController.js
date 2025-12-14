@@ -13,9 +13,10 @@ import otpGenerator from "otp-generator";
 
 const register = async (req, res) => {
     try {
+    
         const { firstName, lastName, email, password } = req.body
         if (!firstName || !lastName || !email || !password) {
-            res.status(400).json({
+           return res.status(400).json({
                 success: false,
                 message: "All fields are required"
             })
@@ -24,7 +25,7 @@ const register = async (req, res) => {
         const user = await User.findOne({ email })
 
         if (user) {
-            res.status(400).json({
+         return   res.status(400).json({
                 success: false,
                 message: "User already exits"
             })
@@ -49,8 +50,11 @@ const register = async (req, res) => {
         });
 
 
-        sendOtpMail(otp, email)
+     await sendOtpMail(otp, email);
 
+        console.log("Hello ")
+        
+   
 
 
         newUser.otp = otp
@@ -187,7 +191,7 @@ const resendOtp = async (req, res) => {
             lowerCaseAlphabets: false,
         });
 
-        sendOtpMail(otp, user.email)
+      await  sendOtpMail(otp, user.email)
 
         user.otp = otp;
         user.otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
@@ -209,7 +213,7 @@ const logIn = async (req, res) => {
     try {
         const { email, password } = req.body
         if (!email || !password) {
-            res.status(400).json({
+          return  res.status(400).json({
                 success: false,
                 message: "All fields are required"
             })
@@ -218,7 +222,7 @@ const logIn = async (req, res) => {
         const user = await User.findOne({ email })
 
         if (!user) {
-            res.status(400).json({
+          return  res.status(400).json({
                 success: false,
                 message: "User Not exits"
 
@@ -332,7 +336,7 @@ const forgotPassword = async (req, res) => {
         existingUser.token = accessToken
         await existingUser.save()
 
-        forgotPassLink(accessToken, email)
+      await  forgotPassLink(accessToken, email)
 
 
         return res.status(200).json({

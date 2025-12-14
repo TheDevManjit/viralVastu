@@ -76,7 +76,7 @@ const router = createBrowserRouter(
         <Route path='/changepassword/:token' element={<ChangePassword />} />
 
         <Route path='/profile/:userId' element={<Profile />} />
-        <Route path='/product/' element={<ProductsPage />} />
+        <Route path='/products/' element={<ProductsPage />} />
         <Route path='/product/:id' element={<ProductPage />} />
         <Route path='/cart' element={<CartPage />} />
         <Route path="*" element={<NotFound />} />
