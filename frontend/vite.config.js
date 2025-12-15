@@ -2,20 +2,28 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import path from "path"
-import { resolve } from 'path'
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-   build: {
-    outDir: 'dist'
+  build: {
+    outDir: 'dist',
+    rollupOptions: {
+      input: 'index.html'
+    }
   },
-  publicDir: 'public',
-  // this ensures redirects file is copied properly
-  assetsInclude: ['_redirects'],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  // hook that ensures redirects file gets copied
+  publicDir: 'public',
+  buildEnd() {
+    this.emitFile({
+      type: 'asset',
+      fileName: '_redirects',
+      source: '/* /index.html 200'
+    })
+  }
 })
