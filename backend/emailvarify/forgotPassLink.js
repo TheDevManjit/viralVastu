@@ -5,11 +5,16 @@ export const forgotPassLink = async (token, email) => {
   try {
     // create transporter
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
       auth: {
         user: process.env.MAIL_USER,
-        pass: process.env.MAIL_PASS
-      }
+        pass: process.env.MAIL_PASS, // APP PASSWORD ONLY
+      },
+      tls: {
+        rejectUnauthorized: false,
+      },
     });
 
     // define mail options
