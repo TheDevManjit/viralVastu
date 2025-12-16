@@ -5,7 +5,7 @@ import userRoute from "./routes/userRoute.js"
 import productRoute from "./routes/productRoute.js"
 import adminRoute from "./routes/adminRoute.js"
 import cartRoute from "./routes/cartRoute.js"
-import { errorHandler } from "./middleware/errorHandler.js"
+import compression from "compression";
 import cors from 'cors'
 import categoryRouter from './routes/categoryRoute.js'
 
@@ -18,6 +18,7 @@ const PORT = process.env.PORT || 5000
 
 app.use(Express.json())
 app.use(Express.urlencoded({ extended: true }));
+app.use(compression());
 
 // const allowedOrigins = [
 //   "http://localhost:5173",
@@ -55,10 +56,12 @@ app.use("/api/v1/cart",cartRoute)
 
 const startServer = async () => {
   try {
-    await connectDB(); // ✅ Connect first
+    await connectDB(); 
+
     app.listen(PORT, () => {
       console.log(`🚀 Server Ekdum Ok hai aur port ${PORT} hai`);
     });
+
   } catch (error) {
     console.error("❌ Server failed to start due to DB error");
     process.exit(1);
