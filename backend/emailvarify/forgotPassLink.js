@@ -6,15 +6,16 @@ export const forgotPassLink = async (token, email) => {
     // create transporter
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
-      port: 587,
-      secure: false,
-      longer:true,
+      port: 465,        // USE 465 for Production (SSL)
+      secure: true,     // TRUE for port 465
+      logger: true,     // Log information to console
+      debug: true,      // Include SMTP traffic in logs
       auth: {
         user: process.env.MAIL_USER,
-        pass: process.env.MAIL_PASS, // APP PASSWORD ONLY
+        pass: process.env.MAIL_PASS, // MUST be an App Password
       },
       tls: {
-        rejectUnauthorized: false,
+        rejectUnauthorized: true, // Better security for production
       },
     });
 
@@ -48,14 +49,14 @@ export const forgotPassLink = async (token, email) => {
       `
     };
 
-    // send mail with async/await
+    // send mail
     const info = await transporter.sendMail(mailOptions);
-    console.log("✅ Email sent successfully:", info.response);
+    console.log("✅ Email sent successfully:", info.messageId);
     return { success: true, message: "Email sent successfully" };
 
   } catch (error) {
+    // This will now print detailed SMTP logs in your production console
     console.error("❌ Error sending email:", error);
     return { success: false, message: "Failed to send email", error };
   }
 };
-
