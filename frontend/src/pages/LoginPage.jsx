@@ -91,12 +91,16 @@ export default function loginPage() {
         const email = formData.email
         console.log(email)
         try {
+            setLoading(true)
             const response = await axios.post(`${API_BASE_URL}/api/v1/user/forgotpassword`, { email })
             if (response.data.success) {
                 navigate("/emailsent")
             }
         } catch (error) {
             toast.error(error.response.data.message || "Something went wrong")
+        }finally {
+            setLoading(false)
+            
         }
     }
 

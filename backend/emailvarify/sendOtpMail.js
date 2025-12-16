@@ -7,6 +7,9 @@ export const sendOtpMail = async (email, otp) => {
       host: "smtp.gmail.com",
       port: 587,
       secure: false,
+      requireTLS:true,
+      longer:true,
+      debug:true,
       auth: {
         user: process.env.MAIL_USER,
         pass: process.env.MAIL_PASS, // APP PASSWORD
