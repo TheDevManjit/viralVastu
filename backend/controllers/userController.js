@@ -309,6 +309,7 @@ const logOut = async (req, res) => {
 }
 
 const forgotPassword = async (req, res) => {
+   
     try {
 
         const { email } = req.body;
@@ -342,7 +343,7 @@ const forgotPassword = async (req, res) => {
 
         return res.status(200).json({
             success: true,
-            message: `otp send successfully on ${existingUser.email} and expire in 10 minutes`
+            message: `rest link send to ${existingUser.email} and expire in 10 minutes`
         })
 
 

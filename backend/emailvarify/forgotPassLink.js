@@ -1,62 +1,48 @@
-import nodemailer from 'nodemailer';
-import 'dotenv/config';
+import { Resend } from "resend";
+import "dotenv/config";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const forgotPassLink = async (token, email) => {
-  try {
-    // create transporter
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 465,        // USE 465 for Production (SSL)
-      secure: true,     // TRUE for port 465
-      logger: true,     // Log information to console
-      debug: true,      // Include SMTP traffic in logs
-      auth: {
-        user: process.env.MAIL_USER,
-        pass: process.env.MAIL_PASS, // MUST be an App Password
-      },
-      tls: {
-        rejectUnauthorized: true, // Better security for production
-      },
-    });
+  console.log("Sending reset mail to:", email);
 
-    // define mail options
-    const mailOptions = {
-      from: process.env.MAIL_USER,
-      to: email,
+  try {
+    const resetUrl = `https://viralvastu-frontend.onrender.com/changepassword/${token}`;
+
+    const response = await resend.emails.send({
+      from: `viralvastu <noreply@viralvastu.in>`,
+      to: email, 
       subject: "🔒 Reset Your Password - Action Required",
       html: `
-      <div style="font-family: Arial, sans-serif; background-color: #f8f9fa; padding: 30px;">
-        <div style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); padding: 25px;">
-          <h2 style="color: #333333;">Hello 👋,</h2>
-          <p style="color: #555555; font-size: 16px;">
-            We received a request to reset your password. Click the button below to set up a new one:
-          </p>
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="https://viralvastu-frontend.onrender.com/changepassword/${token}" 
-               style="background-color: #007bff; color: white; text-decoration: none; padding: 12px 25px; border-radius: 6px; font-weight: bold; display: inline-block;">
-              Reset Password
-            </a>
-          </div>
-          <p style="color: #777777; font-size: 14px;">
-            If you didn’t request this, you can safely ignore this email — your password will remain unchanged.
-          </p>
-          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-          <p style="color: #999999; font-size: 12px; text-align: center;">
-            © ${new Date().getFullYear()} Viral vastu. All rights reserved.
-          </p>
-        </div>
-      </div>
-      `
-    };
+        <div style="font-family: Arial, sans-serif; background-color: #f8f9fa; padding: 30px;">
+          <div style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); padding: 25px;">
+            <h2>Hello 👋</h2>
+            <p>Click the button below to reset your password:</p>
 
-    // send mail
-    const info = await transporter.sendMail(mailOptions);
-    console.log("✅ Email sent successfully:", info.messageId);
-    return { success: true, message: "Email sent successfully" };
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${resetUrl}"
+                 style="background-color:#007bff;color:#fff;padding:12px 25px;border-radius:6px;text-decoration:none;">
+                Reset Password
+              </a>
+            </div>
+
+            <p style="font-size:14px;color:#777;">
+              If you didn’t request this, you can ignore this email.
+            </p>
+
+            <p style="font-size:12px;color:#999;text-align:center;">
+              © ${new Date().getFullYear()} ViralVastu
+            </p>
+          </div>
+        </div>
+      `,
+    });
+
+    console.log("✅ Resend response:", response);
+    return { success: true };
 
   } catch (error) {
-    // This will now print detailed SMTP logs in your production console
-    console.error("❌ Error sending email:", error);
-    return { success: false, message: "Failed to send email", error };
+    console.error("❌ Resend error:", error?.message || error);
+    return { success: false, error };
   }
 };
