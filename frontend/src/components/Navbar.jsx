@@ -94,7 +94,7 @@ const Navbar = () => {
         ? firstCat
         : item.productName;
 
-    navigate(`/product?search=${encodeURIComponent(destinationValue)}`);
+    navigate(`/products?search=${encodeURIComponent(destinationValue)}`);
     setSuggestions([]);
     setDrawerOpen(false);
   };

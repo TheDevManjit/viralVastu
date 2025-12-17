@@ -10,7 +10,7 @@ export const forgotPassLink = async (token, email) => {
     const resetUrl = `https://viralvastu-frontend.onrender.com/changepassword/${token}`;
 
     const response = await resend.emails.send({
-      from: `viralvastu <noreply@viralvastu.in>`,
+      from: `viralvastu <noreply@teachmark.in>`,
       to: email, 
       subject: "🔒 Reset Your Password - Action Required",
       html: `

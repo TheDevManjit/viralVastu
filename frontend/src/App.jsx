@@ -74,21 +74,18 @@ const router = createBrowserRouter(
         <Route path='/login' element={<LoginPage />} />
         <Route path='/emailsent' element={<VerifyEmailSend />} />
         <Route path='/changepassword/:token' element={<ChangePassword />} />
-
-        <Route path='/profile/:userId' element={<Profile />} />
         <Route path='/products/' element={<ProductsPage />} />
         <Route path='/product/:id' element={<ProductPage />} />
-        <Route path='/cart' element={<CartPage />} />
         <Route path="*" element={<NotFound />} />
         <Route path="/under-construction" element={<UnderConstruction />} />
 
 
       </Route>
 
-      <Route path='/cart' element={<CartLayout />}>
-        <Route path='' element={<CartPage />} />
-       
-      </Route>
+     
+         <Route path='/cart' element={<CartPage />} />
+         <Route path='/profile/:userId' element={<Profile />} />
+      
     </>
 
 

@@ -25,7 +25,7 @@ function Category() {
 
     const handleClick = (e) => {
         // Implement navigation or any other logic here
-       navigate(`/product?search=${e}`);
+       navigate(`/products?search=${e}`);
         console.log(`Navigating to ${e}`);
     };
 

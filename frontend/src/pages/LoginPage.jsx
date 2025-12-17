@@ -21,12 +21,6 @@ import { setUser } from "@/redux/userSlice";
 import API_BASE_URL from "@/api/baseUrl";
 
 
-
-
-
-
-
-
 export default function loginPage() {
 
     const navigate = useNavigate()
@@ -39,9 +33,6 @@ export default function loginPage() {
     const [forgotPass, setForgotPass] = useState(false)
     const [error, setError] = useState('')
     const dispatch = useDispatch()
-
-
-
 
 
     function handleChange(e) {
@@ -106,10 +97,10 @@ export default function loginPage() {
 
     return (
 
-        <div className=" items-center min-h-screen flex   justify-center bg-sky-100 pt-10 relative">
+        <div className=" items-center min-h-screen flex  justify-center bg-sky-100 pt-10 relative">
             <div className=" w-full md:w-[750px] md:grid grid-cols-2 gap-4 bg-linear-to-r from-blue-400 to-blue-200 p-5 rounded m">
-                <div className="max-w-sm mt-5">
-                    <p className="text-3xl font-bold flex flex-col justify-between gap-4">Explore <span className="text-yellow-300 font-extrabold">Biggest Collection</span>  of <span className="text-yellow-300 font-extrabold" > Trending Products</span></p>
+                <div className="max-w-sm mt-24 md:mt-10 hidden md:flex flex-col">
+                    <p className="text-3xl font-bold flex flex-col justify-between gap-2">Explore <span className="text-yellow-300 font-extrabold">Biggest Collection</span>  of <span className="text-yellow-300 font-extrabold" > Trending Products</span></p>
                     <img src="logo.png" alt="" className="w-40 scale-200 self-baseline" />
                 </div>
                 <Card className="w-full md:max-w-sm  h-[350px] justify-center">
@@ -172,14 +163,14 @@ export default function loginPage() {
                          
                         {(
                             !forgotPass ?
-                                <span className="text-sm mx-2  hover:underline hover:text-yellow-600"><Link
+                                <span className="text-sm mx-2  hover:underline cursor-pointer hover:text-yellow-600"><Link
 
                                     onClick={() => setForgotPass((prev) => !prev)}
 
                                 >Forgot Password ?</Link></span>
                                 :
 
-                                <span className="text-sm mx-2  hover:underline hover:text-yellow-600"><Link
+                                <span className="text-sm mx-2 cursor-pointer hover:underline hover:text-yellow-600"><Link
 
                                     onClick={() => setForgotPass((prev) => !prev)}
 

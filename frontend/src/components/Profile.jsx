@@ -10,15 +10,15 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Contact, Pencil, TurkishLira } from 'lucide-react';
+import { Pencil, ArrowLeft } from 'lucide-react';
 import { use, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import store from "@/redux/store";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { toast } from "sonner"
 import profileLogo from '../assets/profileLogo.jpg'
 import { setUser } from "@/redux/userSlice";
-import axios from "axios";
+import axios from "axios"
 import API_BASE_URL from "@/api/baseUrl";
 
 
@@ -34,7 +34,7 @@ export default function Profile() {
         address: user?.address,
         city: user?.city,
         zipcode: user?.zipcode,
-        role:user?.role,
+        role: user?.role,
         phoneNo: user?.phoneNo,
         profilePic: user?.profilePic,
         email: user?.email,
@@ -109,13 +109,46 @@ export default function Profile() {
     return (
 
         <>
-            <div className="pt-20 min-h-screen bg-gray-100 flex justify-center   ">
+            <div>
+                <nav className="w-full hidden md:flex text-white bg-linear-to-r from-blue-500 to-blue-600 fixed top-0 left-0 z-50 shadow-sm">
+                    <div className="max-w-[90vw] mx-auto px-4 sm:px-6 lg:px-8 w-full">
+                        <div className="flex justify-center items-center h-16 gap-4">
+                            {/* Logo */}
+                            <Link to="/" className="flex items-center gap-2">
+                                <img
+                                    src="/logo.png"
+                                    alt="Logo"
+                                    className="h-50 w-auto object-contain overflow-hidden mt-2"
+                                />
+                            </Link>
+
+                            {/* Right side */}
+                            <div className="hidden md:flex items-center space-x-6">
+                                <Link
+                                    to="/products"
+                                    className="hover:text-green-600 border border-transparent transition font-medium hover:border hover:border-[#676D6C] rounded p-1"
+                                >
+                                    Products
+                                </Link>
 
 
+
+
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+            <div className="lg:pt-20 min-h-screen  bg-gray-100 flex justify-center">
 
                 <div className=" w-2xl mx-auto">
+
                     <Card className=" ">
+                        <Link className="ms-4 mt-4" to={`/`}>
+                            <span ><ArrowLeft /></span>
+                        </Link>
                         <CardHeader className="flex justify-between">
+
                             <CardTitle>Do you want edit your account ?</CardTitle>
                             <Button className="cursor-pointer" onClick={editHandelaer}>
                                 Edit
@@ -124,13 +157,13 @@ export default function Profile() {
 
                         </CardHeader>
                         <CardContent>
-                            <div className="lg:grid lg:grid-cols-3 flex flex-col gap-4  ">
+                            <div className="lg:grid lg:grid-cols-3 flex flex-col gap-4 ">
                                 <div className=" w-32">
                                     <img src={updateUser?.profilePic || profileLogo} alt="" className="full h-32 rounded-full object-cover border-4" />
                                     <Label className="mt-4 cursor-pointer bg-green-400 text-center flex justify-center text-gray-800  py-2  hover:bg-green-600 rounded"> Change Picture
 
                                         <input type="file" accept="image/*" className="hidden"
-                                            onChange={handleFileChange}
+                                            onChange={handleFileChange} disabled={editable}
                                         />
                                     </Label>
 
