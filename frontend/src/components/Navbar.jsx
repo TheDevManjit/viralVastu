@@ -16,7 +16,8 @@ const Navbar = () => {
   const [search, setSearch] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [allProducts, setAllProducts] = useState([]);
-  const { cart, loading } = useSelector((state) => state.cart);
+  const { cart, } = useSelector((state) => state.cart);
+ const [loading, setLoading] = useState(false);
   const { user } = useSelector((store) => store.user);
   const dispatch = useDispatch();
   const accessToken = localStorage.getItem("accessToken");
@@ -27,6 +28,7 @@ const Navbar = () => {
 
   const logoutHandler = async () => {
     try {
+      setLoading(true)
       const res = await axios.post(
         `${API_BASE_URL}/api/v1/user/logout/`,
         {},
@@ -40,11 +42,15 @@ const Navbar = () => {
         dispatch(setUser(null));
         toast.success(res.data.message);
         localStorage.removeItem("accessToken");
-        navigate("/");
+        setTimeout(() => {
+          navigate("/");
+        }, 300);
       }
     } catch (error) {
       console.log(error);
       toast.error(error?.response?.data?.message || "Logout failed");
+    } finally {
+      setLoading(false)
     }
   };
 
@@ -191,15 +197,15 @@ const Navbar = () => {
                   <UserRound size={18} />
                   <span>{user.firstName}</span>
                   <div className="hidden group-hover:flex absolute w-30 h-24 bg-white top-6 rounded text-black transition delay-150 duration-300 ease-in-out">
-                   <ul className="p-2">
-                    <li className="hover:bg-gray-200 rounded p-2">
+                    <ul className="p-2">
+                      <li className="hover:bg-gray-200 rounded p-2">
                         <Link to={`profile/${user._id}`}>Profile</Link>
-                    </li>
-                    <li className="hover:bg-gray-200 rounded p-2">
+                      </li>
+                      <li className="hover:bg-gray-200 rounded p-2">
                         <Link to={`/orders`}>Orders</Link>
-                    </li>
-                    
-                   </ul>
+                      </li>
+
+                    </ul>
 
                   </div>
                 </div>
@@ -226,10 +232,11 @@ const Navbar = () => {
 
               {user ? (
                 <Button
-                  className="bg-red-300 text-black hover:bg-red-500"
+                  className="bg-red-300 text-black hover:bg-red-500 cursor-pointer"
                   onClick={logoutHandler}
                 >
-                  <LogOut className="mr-1 h-4 w-4" /> Logout
+                  {loading ? <>Logging out... </> : <><LogOut className="mr-1 h-4 w-4" /> Log Out</>}
+
                 </Button>
               ) : (
                 <Link to="/login">
@@ -291,16 +298,14 @@ const Navbar = () => {
 
         {/* Drawer */}
         <div
-          className={`fixed inset-0 z-[60] transition-opacity ${
-            drawerOpen ? "opacity-100" : "pointer-events-none opacity-0"
-          }`}
+          className={`fixed inset-0 z-[60] transition-opacity ${drawerOpen ? "opacity-100" : "pointer-events-none opacity-0"
+            }`}
         >
           <div className="absolute inset-0 bg-black/40" />
           <div
             ref={drawerRef}
-            className={`absolute right-0 top-0 h-full w-[88vw] max-w-sm bg-white text-black shadow-xl transition-transform duration-300 ${
-              drawerOpen ? "translate-x-0" : "translate-x-full"
-            } flex flex-col`}
+            className={`absolute right-0 top-0 h-full w-[88vw] max-w-sm bg-white text-black shadow-xl transition-transform duration-300 ${drawerOpen ? "translate-x-0" : "translate-x-full"
+              } flex flex-col`}
           >
             <div className="flex items-center justify-between p-4 border-b">
               <span className="font-semibold">Menu</span>
@@ -315,7 +320,7 @@ const Navbar = () => {
             </div>
 
             {/* Search */}
-           
+
 
             {/* Links */}
             <div className="p-2 grow overflow-y-auto">
@@ -371,46 +376,46 @@ const Navbar = () => {
           </div>
         </div>
 
-         <div className="p-4 border-b relative">
-              <div className="relative">
-                <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-600" />
-                <Input
-                  ref={searchRef}
-                  className="pl-10 pr-3 h-11 bg-white text-black border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 w-full"
-                  placeholder="Search for products..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && search.trim()) {
-                      navigate(`/product?search=${encodeURIComponent(search.trim())}`);
-                      setDrawerOpen(false);
-                      setSuggestions([]);
-                    }
-                  }}
-                />
-              </div>
+        <div className="p-4 border-b relative">
+          <div className="relative">
+            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-600" />
+            <Input
+              ref={searchRef}
+              className="pl-10 pr-3 h-11 bg-white text-black border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 w-full"
+              placeholder="Search for products..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && search.trim()) {
+                  navigate(`/product?search=${encodeURIComponent(search.trim())}`);
+                  setDrawerOpen(false);
+                  setSuggestions([]);
+                }
+              }}
+            />
+          </div>
 
-              {suggestions.length > 0 && (
-                <div className="mt-2 text-black bg-white shadow-lg border rounded-md w-full max-h-80 overflow-y-auto z-50">
-                  {suggestions.map((item) => (
-                    <button
-                      type="button"
-                      key={item._id}
-                      onClick={() => handleSelectSuggestion(item)}
-                      className="w-full text-left px-4 py-2 hover:bg-gray-50"
-                    >
-                      <p className="font-medium">{item.productName}</p>
-                      <p className="text-xs text-gray-500">
-                        {item.productBrand} •{" "}
-                        {Array.isArray(item.productCategory)
-                          ? item.productCategory[0]
-                          : ""}
-                      </p>
-                    </button>
-                  ))}
-                </div>
-              )}
+          {suggestions.length > 0 && (
+            <div className="mt-2 text-black bg-white shadow-lg border rounded-md w-full max-h-80 overflow-y-auto z-50">
+              {suggestions.map((item) => (
+                <button
+                  type="button"
+                  key={item._id}
+                  onClick={() => handleSelectSuggestion(item)}
+                  className="w-full text-left px-4 py-2 hover:bg-gray-50"
+                >
+                  <p className="font-medium">{item.productName}</p>
+                  <p className="text-xs text-gray-500">
+                    {item.productBrand} •{" "}
+                    {Array.isArray(item.productCategory)
+                      ? item.productCategory[0]
+                      : ""}
+                  </p>
+                </button>
+              ))}
             </div>
+          )}
+        </div>
       </nav>
     </>
   );

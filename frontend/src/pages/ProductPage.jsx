@@ -76,6 +76,7 @@ export default function ProductPage() {
     console.log(product._id, "  ", quantity)
 
     dispatch(addToCart({ productId: product._id, quantity }))
+
     navigate("/cart")
 
   }
@@ -145,7 +146,7 @@ export default function ProductPage() {
                 />
             }
           </div>
-          
+
         </div>
       </div>
 

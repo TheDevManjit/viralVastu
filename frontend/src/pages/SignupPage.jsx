@@ -31,7 +31,7 @@ export default function SignupPage() {
 
     const navigate = useNavigate()
     const [showPassword, setShowPassword] = useState(false)
-    const [loading, setLoading] = useState(false)
+     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('')
     const [otpSend, setOtpSend] = useState(false)
     const [otp, setotp] = useState("")
@@ -213,7 +213,7 @@ export default function SignupPage() {
                                                 maxLength={6}
                                             />
 
-                                            <button className="decoration-underline" onClick={handleResendOtp} disabled={cooldown > 0 || resendCount >= MAX_RESENDS}>
+                                            <button className="decoration-underline cursor-pointer" onClick={handleResendOtp} disabled={cooldown > 0 || resendCount >= MAX_RESENDS}>
                                                 {cooldown > 0
                                                     ? `We can again Resend OTP in ${cooldown}s`
                                                     : resendCount >= MAX_RESENDS
@@ -338,7 +338,7 @@ export default function SignupPage() {
                                 <Button type="submit" className="w-full cursor-pointer bg-green-700 hover:bg-green-500" onClick={handleSubmit}>
                                     {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Loading </> : "signup"}
                                 </Button>
-                                <p className=" text-gray-700 text-sm">Already Have An Account? <Link to={"/login"} className="hover:underline cursor-pointer text-green-500">logIn</Link> </p>
+                                <p className=" text-gray-700 text-sm cursor-pointer">Already Have An Account? <Link to={"/login"} className="hover:underline cursor-pointer text-green-500">logIn</Link> </p>
 
                             </CardFooter>
                         </Card>

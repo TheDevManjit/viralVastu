@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import {  UserRound,  } from "lucide-react";
 import { toast } from 'sonner';
 import axios from 'axios';
 import store from '@/redux/store';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
-import { addToCart } from "../redux/cartSlice.js";
 import { fetchCart } from '../redux/cartSlice.js';
 import { removeItem } from '../redux/cartSlice.js';
 import Loader from '@/components/Loader.jsx';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import Navbar from '@/components/Navbar.jsx';
+
 
 
 const CartPage = () => {
@@ -73,7 +73,32 @@ const CartPage = () => {
                   Products
                 </Link>
 
+                 {user ? (
+                <div className="relative group flex items-center gap-2">
+                  <UserRound size={18} />
+                  <span>{user.firstName}</span>
+                  <div className="hidden group-hover:flex absolute w-30 h-24 bg-white top-6 rounded text-black transition delay-150 duration-300 ease-in-out">
+                    <ul className="p-2">
+                      <li className="hover:bg-gray-200 rounded p-2">
+                        <Link to={`profile/${user._id}`}>Profile</Link>
+                      </li>
+                      <li className="hover:bg-gray-200 rounded p-2">
+                        <Link to={`/orders`}>Orders</Link>
+                      </li>
 
+                    </ul>
+
+                  </div>
+                </div>
+              ) : (
+                <Link
+                  to="/login"
+                  className="flex items-center gap-2 text-gray-100 border border-transparent transition font-medium rounded p-1"
+                >
+                  <UserRound size={18} />
+                  <span>Profile</span>
+                </Link>
+              )}
 
 
               </div>
