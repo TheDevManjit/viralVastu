@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import {  UserRound,  } from "lucide-react";
+import { UserRound, } from "lucide-react";
 import { toast } from 'sonner';
 import axios from 'axios';
 import store from '@/redux/store';
@@ -9,9 +9,12 @@ import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 import { fetchCart } from '../redux/cartSlice.js';
 import { removeItem } from '../redux/cartSlice.js';
+import {clearCart} from '../redux/cartSlice.js';
 import Loader from '@/components/Loader.jsx';
 import { ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import API_BASE_URL from "@/api/baseUrl";
+import RP_TEST_KEY from '@/api/razorpay.js';
 
 
 
@@ -20,7 +23,8 @@ const CartPage = () => {
   const { user } = useSelector((state) => state.user)
   const [quantities, setQuantities] = useState({});
   const dispatch = useDispatch();
-
+  const navigate = useNavigate()
+  const accessToken = localStorage.getItem("accessToken");
   useEffect(() => {
     dispatch(fetchCart()) // this triggers the thunk
   }, [dispatch])
@@ -32,6 +36,77 @@ const CartPage = () => {
       .then(() => toast.success("Item removed from cart"))
       .catch(() => toast.error("Failed to remove item"));
   }
+
+  const handleClearCart = () => {
+  
+    // We use item.product._id based on your previous data structure
+    dispatch(clearCart())
+      .unwrap()
+      .catch((err) => console.error("Failed to remove an item", err));
+ 
+  
+  toast.success("Cart cleared");
+  navigate("/")
+  
+};
+
+
+const handlePayment = async (totalPrice, items) => {
+ // console.log(RP_TEST_KEY)
+  try {
+    const formattedProducts = items.map((item) => ({
+      product_id: item.product._id,
+      quantity: item.quantity,
+    }));
+
+    const { data } = await axios.post(
+      `${API_BASE_URL}/api/v1/order/create-order`,
+      { amount: totalPrice, products: formattedProducts },
+      { headers: { Authorization: `Bearer ${accessToken}` } }
+    );
+
+    const options = {
+      // Use the actual key from your env or a variable
+      key: RP_TEST_KEY, 
+      amount: data.razorpayOrder.amount, // FIXED: was data.order
+      currency: "INR",
+      name: "viralVastu",
+      order_id: data.razorpayOrder.id, 
+      prefill: {
+        name: user.firstName + " " + user.lastName,
+        email: user.email,
+        phone: user.phoneNo
+      },  // FIXED: was data.order
+      handler: async function (response) {
+        try {
+          // FIXED: Use full URL for verification
+          const { data: verifyData } = await axios.post(
+            `${API_BASE_URL}/api/v1/order/verify`, 
+            response,
+            { headers: { Authorization: `Bearer ${accessToken}` } }
+          );
+
+          if (verifyData.success) {
+           toast.success("Payment Successful!");
+            handleClearCart()
+            
+           
+          }
+        } catch (error) {
+          console.error("Verification failed", error);
+          toast.error("varification failed")
+        }
+      },
+      theme: { color: "#f97316" },
+    };
+
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+
+  } catch (error) {
+    console.error("Payment initiation failed", error.response?.data || error);
+  }
+};
 
 
   console.log(user)
@@ -73,32 +148,32 @@ const CartPage = () => {
                   Products
                 </Link>
 
-                 {user ? (
-                <div className="relative group flex items-center gap-2">
-                  <UserRound size={18} />
-                  <span>{user.firstName}</span>
-                  <div className="hidden group-hover:flex absolute w-30 h-24 bg-white top-6 rounded text-black transition delay-150 duration-300 ease-in-out">
-                    <ul className="p-2">
-                      <li className="hover:bg-gray-200 rounded p-2">
-                        <Link to={`profile/${user._id}`}>Profile</Link>
-                      </li>
-                      <li className="hover:bg-gray-200 rounded p-2">
-                        <Link to={`/orders`}>Orders</Link>
-                      </li>
+                {user ? (
+                  <div className="relative group flex items-center gap-2">
+                    <UserRound size={18} />
+                    <span>{user.firstName}</span>
+                    <div className="hidden group-hover:flex absolute w-30 h-24 bg-white top-6 rounded text-black transition delay-150 duration-300 ease-in-out">
+                      <ul className="p-2">
+                        <li className="hover:bg-gray-200 rounded p-2">
+                          <Link to={`profile/${user._id}`}>Profile</Link>
+                        </li>
+                        <li className="hover:bg-gray-200 rounded p-2">
+                          <Link to={`/orders`}>Orders</Link>
+                        </li>
 
-                    </ul>
+                      </ul>
 
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <Link
-                  to="/login"
-                  className="flex items-center gap-2 text-gray-100 border border-transparent transition font-medium rounded p-1"
-                >
-                  <UserRound size={18} />
-                  <span>Profile</span>
-                </Link>
-              )}
+                ) : (
+                  <Link
+                    to="/login"
+                    className="flex items-center gap-2 text-gray-100 border border-transparent transition font-medium rounded p-1"
+                  >
+                    <UserRound size={18} />
+                    <span>Profile</span>
+                  </Link>
+                )}
 
 
               </div>
@@ -231,7 +306,12 @@ const CartPage = () => {
             <p className="text-green-600 text-sm mt-2">
               You will save ₹6,005 on this order
             </p>
-            <Button className="w-full mt-4 bg-orange-500 hover:bg-orange-600 text-white cursor-pointer">
+            <Button className="w-full mt-4 bg-orange-500 hover:bg-orange-600 text-white cursor-pointer"
+              onClick={() => {
+                handlePayment(cart.totalPrice, cart.items)
+                // handleClearCart()
+              }}
+            >
               PLACE ORDER
             </Button>
           </div>

@@ -60,6 +60,29 @@ export const removeItem = createAsyncThunk(
 
 )
 
+// http://localhost:5000/api/v1/cart/clear-cart
+
+export const clearCart = createAsyncThunk(
+    'cart/clearCart',
+    async (_,{ rejectWithValue }) => {
+        try {
+            const response = await axios.post(`${API_BASE_URL}/api/v1/cart/clear-cart`,
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                    },
+                }
+            )
+            console.log("Cart is Clear", response.data)
+            return response.data
+        } catch (error) {
+            return rejectWithValue(error.response.data)
+        }
+    }
+
+)
+
 
 const cartSlice = createSlice({
 
@@ -113,6 +136,19 @@ const cartSlice = createSlice({
                 state.cart = action.payload.cart; // ✅ update the store
             })
             .addCase(removeItem.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload?.message || "Failed to remove item";
+            })
+
+            // handle clearcart
+            .addCase(clearCart.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(clearCart.fulfilled, (state, action) => {
+                state.loading = false;
+                state.cart = []; // ✅ update the store
+            })
+            .addCase(clearCart.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload?.message || "Failed to remove item";
             });

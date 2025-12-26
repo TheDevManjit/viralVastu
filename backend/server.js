@@ -5,6 +5,7 @@ import userRoute from "./routes/userRoute.js"
 import productRoute from "./routes/productRoute.js"
 import adminRoute from "./routes/adminRoute.js"
 import cartRoute from "./routes/cartRoute.js"
+import orderRoute from "./routes/orderRoute.js"
 import compression from "compression";
 import cors from 'cors'
 import categoryRouter from './routes/categoryRoute.js'
@@ -50,6 +51,7 @@ app.use("/api/v1/product",productRoute)
 app.use("/api/v1/category",categoryRouter)
 app.use("/api/v1/admin",adminRoute)
 app.use("/api/v1/cart",cartRoute)
+app.use("/api/v1/order",orderRoute)
 
 
 
