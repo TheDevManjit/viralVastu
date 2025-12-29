@@ -1,14 +1,16 @@
-import React from "react";
+import React, { use } from "react";
 import { Button } from "./ui/button";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { EffectCoverflow, Autoplay } from "swiper/modules";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "swiper/css";
 import "swiper/css/effect-flip";
 import "swiper/css/pagination";
 import "swiper/css/effect-coverflow";
 
 const Hero = () => {
+    const navigate = useNavigate();
 
     const images = [
         "/img1.jpeg",
@@ -16,6 +18,7 @@ const Hero = () => {
         "/img3.webp",
 
     ];
+
 
     return (
         <>
@@ -30,8 +33,12 @@ const Hero = () => {
                             <h1 className="text-4xl md:text-6xl font-bold mb-4">Latest Electronics at Best Prices</h1>
                             <p className="text-xl mb-6 text-blue-100">Discover cutting-edge technology with unbeatable deals on smartphones , laptops</p>
                             <div className="flex flex-col sm:flex-row gap-4">
-                                <Button className="bg-white text-blue-600 hover:bg-gray-100"><Link to={`/products`}>Shop Now</Link></Button>
-                                <Button variant='outline' className="border-white text-white hover:bg-white hover:text-blue-600 bg-transparent"><Link to={`/products`}>View Deals</Link></Button>
+                                <Button className="bg-white text-blue-600 hover:bg-gray-100"
+                                onClick={() =>{ navigate('/products')}}>
+                                 <Link to={`/products`}>Shop Now</Link></Button>
+                                <Button variant='outline' className="border-white text-white hover:bg-white hover:text-blue-600 bg-transparent"
+                                onClick={() =>{ navigate('/products')}}>
+                                <Link to={`/products`}>View Deals</Link></Button>
                             </div>
 
 

@@ -52,6 +52,22 @@ const createOrder = async (req, res) => {
 
 
 
+const fetchOrders = async (req,res) => {
+  try {
+    const userId = req.user?._id; 
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "User not authenticated" });
+    }
+    const orders = await Order.find({ user_id: userId });
+    res.status(200).json({ success: true, orders });
+  } catch (error) {
+    console.error("SERVER ERROR:", error);
+    res.status(500).json({  
+      success: false,
+      message: error.message || "Failed to fetch orders",
+    });
+  } 
+};
 
 const verifyPayment = async (req, res) => {
   const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
