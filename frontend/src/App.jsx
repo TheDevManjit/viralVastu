@@ -12,9 +12,11 @@ import ProductsPage from './pages/ProductsPage'
 import ProductPage from './pages/ProductPage'
 import CartPage from './pages/CartPage.jsx'
 import ChangePassword from './pages/ChangePassword'
-import CartLayout from './CartLayout.jsx'
+
 import NotFound from './pages/NotFound'
 import UnderConstruction from './pages/UnderConstuction'
+import OrderPage from './pages/OrderPage'
+import CheckoutPage from './pages/CheckoutPage'
 
 
 
@@ -76,16 +78,18 @@ const router = createBrowserRouter(
         <Route path='/changepassword/:token' element={<ChangePassword />} />
         <Route path='/products/' element={<ProductsPage />} />
         <Route path='/product/:id' element={<ProductPage />} />
+        <Route path='/orders' element={<OrderPage />} />
+        <Route path='/checkout' element={<CheckoutPage />} />
         <Route path="*" element={<NotFound />} />
         <Route path="/under-construction" element={<UnderConstruction />} />
 
 
       </Route>
 
-     
-         <Route path='/cart' element={<CartPage />} />
-         <Route path='/profile/:userId' element={<Profile />} />
-      
+
+      <Route path='/cart' element={<CartPage />} />
+      <Route path='/profile/:userId' element={<Profile />} />
+
     </>
 
 

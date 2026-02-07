@@ -3,10 +3,6 @@ import Navbar from "../components/Navbar";
 import { Outlet } from "react-router-dom";
 import SideBar from "@/components/SideBar";
 
-
-
-
-
 function Dashboard() {
   return (
     <>
@@ -15,7 +11,7 @@ function Dashboard() {
       <div className="ml-[15%] w-[85%]">
         <Navbar classes="sticky top-0 z-50" />
 
-        <div className="p-4 bg-gray-200">
+        <div className="p-4 bg-gray-200 min-h-screen">
           <Outlet />
         </div>
       </div>
@@ -24,5 +20,3 @@ function Dashboard() {
 }
 
 export default Dashboard;
-
-

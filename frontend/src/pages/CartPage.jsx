@@ -1,326 +1,196 @@
-import React, { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { UserRound, } from "lucide-react";
-import { toast } from 'sonner';
-import axios from 'axios';
-import store from '@/redux/store';
-import { useSelector } from 'react-redux';
-import { useDispatch } from 'react-redux';
-import { fetchCart } from '../redux/cartSlice.js';
-import { removeItem } from '../redux/cartSlice.js';
-import {clearCart} from '../redux/cartSlice.js';
-import Loader from '@/components/Loader.jsx';
-import { ArrowLeft } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
-import API_BASE_URL from "@/api/baseUrl";
-import RP_TEST_KEY from '@/api/razorpay.js';
-
-
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCart, removeItem } from "../redux/cartSlice";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, Trash2, ShoppingBag, Minus, Plus } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import Loader from "@/components/Loader";
 
 const CartPage = () => {
-  const { cart, loading, error } = useSelector((state) => state.cart)
-  const { user } = useSelector((state) => state.user)
-  const [quantities, setQuantities] = useState({});
   const dispatch = useDispatch();
-  const navigate = useNavigate()
-  const accessToken = localStorage.getItem("accessToken");
+  const navigate = useNavigate();
+  const { cart, loading, error } = useSelector((state) => state.cart);
+
   useEffect(() => {
-    dispatch(fetchCart()) // this triggers the thunk
-  }, [dispatch])
+    // We might want to fetch only if not already loaded or on mount always
+    dispatch(fetchCart());
+  }, [dispatch]);
 
+  const handleRemove = (productId) => {
+    dispatch(removeItem({ productId }));
+  };
 
-  function handleRemove(id) {
-    dispatch(removeItem({ productId: id }))
-      .unwrap()
-      .then(() => toast.success("Item removed from cart"))
-      .catch(() => toast.error("Failed to remove item"));
-  }
+  const cartItems = cart?.items || [];
+  const totalAmount = cartItems.reduce(
+    (acc, item) => acc + item.product.productPrice * item.quantity,
+    0
+  );
 
-  const handleClearCart = () => {
-  
-    // We use item.product._id based on your previous data structure
-    dispatch(clearCart())
-      .unwrap()
-      .catch((err) => console.error("Failed to remove an item", err));
- 
-  
-  toast.success("Cart cleared");
-  navigate("/")
-  
-};
-
-
-const handlePayment = async (totalPrice, items) => {
- // console.log(RP_TEST_KEY)
-  try {
-    const formattedProducts = items.map((item) => ({
-      product_id: item.product._id,
-      quantity: item.quantity,
-    }));
-
-    const { data } = await axios.post(
-      `${API_BASE_URL}/api/v1/order/create-order`,
-      { amount: totalPrice, products: formattedProducts },
-      { headers: { Authorization: `Bearer ${accessToken}` } }
-    );
-
-    const options = {
-      // Use the actual key from your env or a variable
-      key: RP_TEST_KEY, 
-      amount: data.razorpayOrder.amount, // FIXED: was data.order
-      currency: "INR",
-      name: "viralVastu",
-      order_id: data.razorpayOrder.id, 
-      prefill: {
-        name: user.firstName + " " + user.lastName,
-        email: user.email,
-        phone: user.phoneNo
-      },  // FIXED: was data.order
-      handler: async function (response) {
-        try {
-          // FIXED: Use full URL for verification
-          const { data: verifyData } = await axios.post(
-            `${API_BASE_URL}/api/v1/order/verify`, 
-            response,
-            { headers: { Authorization: `Bearer ${accessToken}` } }
-          );
-
-          if (verifyData.success) {
-           toast.success("Payment Successful!");
-            handleClearCart()
-            
-           
-          }
-        } catch (error) {
-          console.error("Verification failed", error);
-          toast.error("varification failed")
-        }
-      },
-      theme: { color: "#f97316" },
-    };
-
-    const rzp = new window.Razorpay(options);
-    rzp.open();
-
-  } catch (error) {
-    console.error("Payment initiation failed", error.response?.data || error);
-  }
-};
-
-
-  console.log(user)
-
-
-  if (loading) return <div className='flex justify-center items-center h-screen text-gray-600"'><Loader /></div>
-  if (error) return <div>Error: {error.message}</div>
-
-
-  if (!cart || !cart.items || cart.items.length === 0) {
+  if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen text-gray-600">
-        Cart is empty
+      <div className="h-screen flex items-center justify-center bg-gray-50">
+        <Loader />
+      </div>
+    );
+  }
+
+  // Empty State
+  if (!cartItems.length) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+        <div className="bg-white p-8 rounded-2xl shadow-sm text-center max-w-md w-full">
+          <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
+            <ShoppingBag className="w-10 h-10 text-blue-500" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Your Cart is Empty</h2>
+          <p className="text-gray-500 mb-8">
+            Looks like you haven't added anything to your cart yet.
+          </p>
+          <Link to="/products">
+            <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-6 rounded-xl text-lg shadow-blue-200 shadow-lg">
+              Start Shopping
+            </Button>
+          </Link>
+        </div>
       </div>
     );
   }
 
   return (
-    <>
-      <div>
-        <nav className="w-full hidden md:flex text-white bg-linear-to-r from-blue-500 to-blue-600 fixed top-0 left-0 z-50 shadow-sm">
-          <div className="max-w-[90vw] mx-auto px-4 sm:px-6 lg:px-8 w-full">
-            <div className="flex justify-center items-center h-16 gap-4">
-              {/* Logo */}
-              <Link to="/" className="flex items-center gap-2">
-                <img
-                  src="/logo.png"
-                  alt="Logo"
-                  className="h-50 w-auto object-contain overflow-hidden mt-2"
-                />
-              </Link>
-
-              {/* Right side */}
-              <div className="hidden md:flex items-center space-x-6">
-                <Link
-                  to="/products"
-                  className="hover:text-green-600 border border-transparent transition font-medium hover:border hover:border-[#676D6C] rounded p-1"
-                >
-                  Products
-                </Link>
-
-                {user ? (
-                  <div className="relative group flex items-center gap-2">
-                    <UserRound size={18} />
-                    <span>{user.firstName}</span>
-                    <div className="hidden group-hover:flex absolute w-30 h-24 bg-white top-6 rounded text-black transition delay-150 duration-300 ease-in-out">
-                      <ul className="p-2">
-                        <li className="hover:bg-gray-200 rounded p-2">
-                          <Link to={`profile/${user._id}`}>Profile</Link>
-                        </li>
-                        <li className="hover:bg-gray-200 rounded p-2">
-                          <Link to={`/orders`}>Orders</Link>
-                        </li>
-
-                      </ul>
-
-                    </div>
-                  </div>
-                ) : (
-                  <Link
-                    to="/login"
-                    className="flex items-center gap-2 text-gray-100 border border-transparent transition font-medium rounded p-1"
-                  >
-                    <UserRound size={18} />
-                    <span>Profile</span>
-                  </Link>
-                )}
-
-
-              </div>
-            </div>
-          </div>
-        </nav>
+    <div className="min-h-screen bg-gray-50 pb-20">
+      {/* Navbar / Header Placeholder */}
+      <div className="bg-white shadow-sm sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center gap-4">
+          <Link to="/products" className="p-2 -ml-2 hover:bg-gray-100 rounded-full transition-colors text-gray-600">
+            <ArrowLeft className="w-5 h-5" />
+          </Link>
+          <h1 className="text-xl font-bold text-gray-900">Shopping Cart ({cartItems.length})</h1>
+        </div>
       </div>
-      <div className="  flex flex-col md:flex-row justify-center gap-6 p-6 bg-gray-50 min-h-screen lg:mt-20 mt-2 mb-50">
-        <div className=' max-w-7xl flex flex-col md:flex-col justify-center gap-5'>
-          <div className="fixed top-0 left-0 w-full lg:top-15 lg:w-[50%] lg:left-[25%] flex justify-between items-center bg-gray-200 text-red-400 z-10 px-3 py-2">
-            <Link to="/">
-              <ArrowLeft />
-            </Link>
 
-            <Link to={`profile/${user._id}`}>
-              <span>Change Address</span>
-            </Link>
-          </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-
-
-          <div className="flex-1 space-y-4 ">
-            <div className='border p-2 bg-white'>
-              <div className='flex justify-between mb-2'>
-                <h3>Your item delivered to :</h3>
-
-              </div>
-
-
-              <div>
-                <p className='font-bold capitalize'>{user && `${user.firstName} ${user.lastName}`}</p>
-                <div className='flex flex-row gap-4 capitalize'>
-                  <span>{user && user.address}</span>
-                  <span>{user && user.city}</span>
-                  <span>{user && user.zipcode}</span>
-                </div>
-
-              </div>
-
-            </div>
-
-
-
-            {cart.items.map((item) => (
-
-
-              <Card key={item._id} className="flex flex-row md:flex-row p-4 items-start">
-                {
-
-                  (item.product.productImg[0].url &&
-                    <img
-                      src={item.product.productImg[0].url}
-                      alt={item.product.productName}
-                      className="w-24 h-24 object-cover rounded-md border" />
-                  )
-
-                }
-
-                <CardContent className="flex flex-col md:flex-row justify-between w-full gap-4">
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-800">{item.product.productName}</h3>
-                    {/* <p className="text-sm text-gray-500">Seller: {}</p> */}
-                    {!item.product.productStock && (
-                      <p className="text-red-500 font-medium">Out Of Stock</p>
-                    )}
-
-                    {item.product.productStock && (
-                      <div className="flex items-center gap-2 mt-2">
-                        <p className="line-through text-gray-400 text-sm hidden md:flex">
-                          ₹{item.product.productOriginalPrice}
-                        </p>
-                        <p className="text-lg font-bold text-gray-900">
-                          ₹{item.product.productPrice}
-                        </p>
-                        <p className="text-green-600 text-sm font-medium">
-                          {Math.round(((item.product.productOriginalPrice - item.product.productPrice) / item.product.productOriginalPrice) * 100)}% off
-                        </p>
+          {/* Cart Items List */}
+          <div className="lg:col-span-8 space-y-4">
+            {cartItems.map((item) => (
+              <Card key={item.product._id} className="border-none shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
+                <CardContent className="p-0 sm:p-4 flex flex-col sm:flex-row gap-4 sm:gap-6 bg-white">
+                  {/* Image */}
+                  <div className="w-full sm:w-32 h-48 sm:h-32 bg-gray-100 sm:rounded-lg overflow-hidden flex-shrink-0 relative group">
+                    {item.product.productImg?.[0]?.url ? (
+                      <img
+                        src={item.product.productImg[0].url}
+                        alt={item.product.productName}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
+                        No Image
                       </div>
                     )}
-
-                    <div className="flex items-center gap-4 mt-3">
-                      <div className="flex items-center border rounded-md px-2 cursor-pointer">
-                        {/* <button
-                        onClick={() => decreaseQuantity(item.product._id)}
-                        className="text-xl px-2"
-                      >
-                        -
-                      </button>
-                      <span className="px-2 font-medium">{quantities[item.product._id] || item.quantity}</span>
-                      <button
-                        onClick={() => increaseQuantity(item.product._id)}
-                        className="text-xl px-2"
-                      >
-                        +
-                      </button> */}
-                      </div>
-
-
-                      <button
-                        onClick={() => handleRemove(item.product._id)
-
-                        }
-                        className="text-sm font-medium text-red-600 hover:underline cursor-pointer"
-                      >
-                        REMOVE
-                      </button>
-                    </div>
                   </div>
 
-                  <div className="text-right">
-                    <p className="text-sm text-gray-500 ">
-                      Delivery by <span className="font-medium text-gray-800">Sun Dec 7</span>
-                    </p>
+                  {/* Details */}
+                  <div className="flex-1 flex flex-col justify-between p-4 sm:p-0">
+                    <div className="flex justify-between items-start gap-4">
+                      <div className="space-y-1">
+                        <h3 className="font-semibold text-lg text-gray-900 line-clamp-2">
+                          {item.product.productName}
+                        </h3>
+                        <p className="text-sm text-gray-500 capitalize">
+                          {item.product.category?.name || "Category"}
+                        </p>
+                      </div>
+                      <p className="font-bold text-lg text-gray-900 whitespace-nowrap">
+                        ₹{item.product.productPrice.toLocaleString()}
+                      </p>
+                    </div>
+
+                    <div className="flex justify-between items-end mt-4 sm:mt-0">
+                      <div className="flex items-center gap-3 bg-gray-50 rounded-lg p-1 border border-gray-100">
+                        {/* Static quantity for now as removing item is the main action provided */}
+                        <div className="px-3 py-1 text-sm font-medium text-gray-700">
+                          Qty: {item.quantity}
+                        </div>
+                      </div>
+
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-red-500 hover:text-red-600 hover:bg-red-50 gap-2 px-2"
+                        onClick={() => handleRemove(item.product._id)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        <span className="hidden sm:inline">Remove</span>
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
             ))}
           </div>
 
-          <div className="w-full  bg-white p-4 rounded-lg shadow-md h-fit lg:w-[50%] lg:right-[25%] fixed bottom-0 right-0 ">
-            <h3 className="font-semibold mb-3">Price Details</h3>
-            <div className="flex justify-around py-2 border-b">
-              <p>Total Items</p>
-              <p>{cart.items.length}</p>
+          {/* Order Summary */}
+          <div className="lg:col-span-4">
+            <div className="sticky top-24 space-y-4">
+              <Card className="border-none shadow-lg overflow-hidden">
+                <div className="bg-gray-900 text-white p-4">
+                  <h2 className="text-lg font-semibold flex items-center gap-2">
+                    Order Summary
+                  </h2>
+                </div>
+                <CardContent className="p-6 space-y-6 bg-white">
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-gray-600">
+                      <span>Subtotal</span>
+                      <span>₹{totalAmount.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-gray-600">
+                      <span>Shipping Estimate</span>
+                      <span className="text-green-600 font-medium">Free</span>
+                    </div>
+                    <div className="flex justify-between text-gray-600">
+                      <span>Tax</span>
+                      <span>₹0</span>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-dashed border-gray-200 pt-4">
+                    <div className="flex justify-between items-end">
+                      <span className="font-semibold text-gray-900">Total Amount</span>
+                      <span className="font-bold text-2xl text-blue-600">
+                        ₹{totalAmount.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+
+                  <Button
+                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-6 rounded-xl text-lg font-semibold shadow-lg shadow-blue-200 transform hover:-translate-y-0.5 transition-all duration-200"
+                    onClick={() => navigate('/checkout')}
+                  >
+                    Proceed to Checkout
+                  </Button>
+
+                  <div className="flex items-center justify-center gap-2 text-xs text-gray-400">
+                    <ShoppingBag className="w-3 h-3" />
+                    <span>Secure Checkout</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <div className="text-center">
+                <Link to="/products" className="text-sm font-medium text-gray-500 hover:text-blue-600 transition-colors">
+                  Or Continue Shopping
+                </Link>
+              </div>
             </div>
-            <div className="flex justify-around py-2 border-b">
-              <p>Total Amount </p>
-              <p className="font-semibold">₹{cart.totalPrice}</p>
-            </div>
-            <p className="text-green-600 text-sm mt-2">
-              You will save ₹6,005 on this order
-            </p>
-            <Button className="w-full mt-4 bg-orange-500 hover:bg-orange-600 text-white cursor-pointer"
-              onClick={() => {
-                handlePayment(cart.totalPrice, cart.items)
-                // handleClearCart()
-              }}
-            >
-              PLACE ORDER
-            </Button>
           </div>
 
         </div>
-
       </div>
-    </>
-
+    </div>
   );
 };
 

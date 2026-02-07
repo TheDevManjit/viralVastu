@@ -8,6 +8,18 @@ const orderSchema = new mongoose.Schema(
       required: true,
     },
 
+    shippingAddress: {
+      firstName: { type: String, required: true },
+      lastName: { type: String, required: true },
+      email: { type: String, required: true },
+      address: { type: String, required: true },
+      city: { type: String, required: true },
+      state: { type: String, default: "" }, // Optional if not captured
+      zipcode: { type: String, required: true },
+      country: { type: String, default: "India" },
+      phoneNumber: { type: String, required: true },
+    },
+
     products: [
       {
         product_id: {
@@ -15,6 +27,9 @@ const orderSchema = new mongoose.Schema(
           ref: "Product",
           required: true,
         },
+        name: { type: String, required: true }, // Snapshot of name
+        image: { type: String, required: true }, // Snapshot of image
+        price: { type: Number, required: true }, // Snapshot of price at purchase
         quantity: {
           type: Number,
           required: true,
@@ -46,11 +61,12 @@ const orderSchema = new mongoose.Schema(
     paymentMethod: {
       type: String,
       enum: ["UPI", "Card", "NetBanking", "Wallet"],
+      default: "Card"
     },
 
     status: {
       type: String,
-      enum: ["Pending", "Completed", "Failed"],
+      enum: ["Pending", "Processing", "Shipped", "Delivered", "Completed", "Cancelled"],
       default: "Pending",
     },
 

@@ -1,76 +1,66 @@
 import { Button } from "@/components/ui/button"
 import {
     Card,
-    CardAction,
     CardContent,
-    CardDescription,
-    CardFooter,
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Pencil, ArrowLeft } from 'lucide-react';
-import { use, useState } from "react";
+import { Pencil, ArrowLeft, Camera, Save, X, User as UserIcon, Mail, Phone, MapPin, Building2 } from 'lucide-react';
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import store from "@/redux/store";
-import { useParams, Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { toast } from "sonner"
 import profileLogo from '../assets/profileLogo.jpg'
 import { setUser } from "@/redux/userSlice";
 import axios from "axios"
 import API_BASE_URL from "@/api/baseUrl";
 
-
 export default function Profile() {
 
     const [editable, setEditable] = useState(true)
     const { user } = useSelector(store => store.user)
     const [updateUser, setUpdateUser] = useState({
-
-        firstName: user?.firstName,
-        lastName: user?.lastName,
-
-        address: user?.address,
-        city: user?.city,
-        zipcode: user?.zipcode,
-        role: user?.role,
-        phoneNo: user?.phoneNo,
-        profilePic: user?.profilePic,
-        email: user?.email,
-
+        firstName: user?.firstName || "",
+        lastName: user?.lastName || "",
+        address: user?.address || "",
+        city: user?.city || "",
+        zipcode: user?.zipcode || "",
+        role: user?.role || "user",
+        phoneNo: user?.phoneNo || "",
+        profilePic: user?.profilePic || "",
+        email: user?.email || "",
     })
-
 
     const params = useParams()
     const userId = params.userId
     const [file, setFile] = useState(null)
     const dispatch = useDispatch()
+    const [loading, setLoading] = useState(false)
 
-
-    const editHandelaer = () => {
+    const toggleEdit = () => {
         setEditable((prev) => !prev)
-        console.log(user)
     }
 
     const handleChange = (e) => {
         setUpdateUser({ ...updateUser, [e.target.name]: e.target.value })
     }
 
-
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0]
-        setFile(selectedFile)
-        setUpdateUser({ ...updateUser, profilePic: URL.createObjectURL(selectedFile) })   // preview only
+        if (selectedFile) {
+            setFile(selectedFile)
+            setUpdateUser({ ...updateUser, profilePic: URL.createObjectURL(selectedFile) })
+        }
     }
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+        setLoading(true)
         const accessToken = localStorage.getItem("accessToken")
         try {
-
             const formData = new FormData()
-
             formData.append("firstName", updateUser.firstName)
             formData.append("lastName", updateUser.lastName)
             formData.append("email", updateUser.email)
@@ -84,7 +74,6 @@ export default function Profile() {
                 formData.append("file", file)
             }
 
-            console.log(userId)
             const res = await axios.put(`${API_BASE_URL}/api/v1/user/update/${userId}`, formData, {
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
@@ -95,222 +84,248 @@ export default function Profile() {
             if (res.data.success) {
                 toast.success(res.data.message)
                 dispatch(setUser(res.data.user))
+                setEditable(true) // Exit edit mode on success
             }
-
-
         } catch (error) {
-
-            console.log(error)
-            toast.error("failed to update profile")
+            console.error(error)
+            toast.error(error.response?.data?.message || "Failed to update profile")
+        } finally {
+            setLoading(false)
         }
-
     }
 
     return (
-
-        <>
-            <div>
-                <nav className="w-full hidden md:flex text-white bg-linear-to-r from-blue-500 to-blue-600 fixed top-0 left-0 z-50 shadow-sm">
-                    <div className="max-w-[90vw] mx-auto px-4 sm:px-6 lg:px-8 w-full">
-                        <div className="flex justify-center items-center h-16 gap-4">
-                            {/* Logo */}
-                            <Link to="/" className="flex items-center gap-2">
-                                <img
-                                    src="/logo.png"
-                                    alt="Logo"
-                                    className="h-50 w-auto object-contain overflow-hidden mt-2"
-                                />
-                            </Link>
-
-                            {/* Right side */}
-                            <div className="hidden md:flex items-center space-x-6">
-                                <Link
-                                    to="/products"
-                                    className="hover:text-green-600 border border-transparent transition font-medium hover:border hover:border-[#676D6C] rounded p-1"
-                                >
-                                    Products
-                                </Link>
-
-
-
-
-                            </div>
-                        </div>
-                    </div>
-                </nav>
-            </div>
-            <div className="lg:pt-20 min-h-screen  bg-gray-100 flex justify-center">
-
-                <div className=" w-2xl mx-auto">
-
-                    <Card className=" ">
-                        <Link className="ms-4 mt-4" to={`/`}>
-                            <span ><ArrowLeft /></span>
+        <div className="min-h-screen bg-gray-50 pb-20">
+            {/* Navbar Placeholder or simplified Nav */}
+            <nav className="bg-white shadow-sm sticky top-0 z-50">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-between items-center h-16">
+                        <Link to="/" className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors">
+                            <ArrowLeft className="w-5 h-5" />
+                            <span className="font-medium hidden sm:inline">Back to Home</span>
                         </Link>
-                        <CardHeader className="flex justify-between">
+                        <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                            My Profile
+                        </h1>
+                        <div className="w-20"></div> {/* Spacer for centering */}
+                    </div>
+                </div>
+            </nav>
 
-                            <CardTitle>Do you want edit your account ?</CardTitle>
-                            <Button className="cursor-pointer" onClick={editHandelaer}>
-                                Edit
-                                <Pencil />
-                            </Button>
+            <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-                        </CardHeader>
-                        <CardContent>
-                            <div className="lg:grid lg:grid-cols-3 flex flex-col gap-4 ">
-                                <div className=" w-32">
-                                    <img src={updateUser?.profilePic || profileLogo} alt="" className="full h-32 rounded-full object-cover border-4" />
-                                    <Label className="mt-4 cursor-pointer bg-green-400 text-center flex justify-center text-gray-800  py-2  hover:bg-green-600 rounded"> Change Picture
-
-                                        <input type="file" accept="image/*" className="hidden"
-                                            onChange={handleFileChange} disabled={editable}
-                                        />
-                                    </Label>
-
+                <div className="flex flex-col md:flex-row gap-8">
+                    {/* Left Column: Profile Card */}
+                    <div className="md:w-1/3 flex-shrink-0">
+                        <Card className="border-none shadow-lg overflow-hidden sticky top-24">
+                            <div className="h-32 bg-gradient-to-r from-blue-400 to-indigo-500 relative">
+                                {!editable && (
+                                    <div className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm rounded-full p-2 text-white text-xs">
+                                        Editing Mode
+                                    </div>
+                                )}
+                            </div>
+                            <div className="px-6 pb-6 relative">
+                                <div className="relative -mt-16 mb-4 flex justify-center">
+                                    <div className="relative group">
+                                        <div className="w-32 h-32 rounded-full border-4 border-white shadow-md overflow-hidden bg-white">
+                                            <img
+                                                src={updateUser?.profilePic || profileLogo}
+                                                alt="Profile"
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                        {!editable && (
+                                            <label className="absolute bottom-0 right-0 bg-blue-600 text-white p-2 rounded-full cursor-pointer shadow-lg hover:bg-blue-700 transition-colors">
+                                                <Camera className="w-4 h-4" />
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    className="hidden"
+                                                    onChange={handleFileChange}
+                                                />
+                                            </label>
+                                        )}
+                                    </div>
                                 </div>
-                                <form className="col-span-2">
-                                    <div className="flex flex-col gap-6 ">
 
-                                        <div className="grid grid-cols-2 gap-2 ">
+                                <div className="text-center space-y-1">
+                                    <h2 className="text-2xl font-bold text-gray-900 capitalize">
+                                        {updateUser.firstName} {updateUser.lastName}
+                                    </h2>
+                                    <p className="text-sm text-gray-500">{updateUser.email}</p>
+                                    <div className="pt-4 flex justify-center">
+                                        <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full capitalize">
+                                            {updateUser.role}
+                                        </span>
+                                    </div>
+                                </div>
 
-                                            <div className="">
-                                                <Label htmlFor="firstName">First Name</Label>
-                                                <Input
-                                                    id="firstName"
-                                                    type="text"
-                                                    placeholder="Enter first Name"
-                                                    required
-                                                    className='mt-2'
-                                                    disabled={editable}
-                                                    name="firstName"
-                                                    value={updateUser.firstName}
-                                                    onChange={handleChange}
+                                <div className="mt-8 pt-6 border-t border-gray-100 grid grid-cols-2 gap-4 text-center">
+                                    <div>
+                                        <p className="text-gray-400 text-xs uppercase tracking-wide">City</p>
+                                        <p className="font-medium text-gray-700 capitalize">{updateUser.city || "-"}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-gray-400 text-xs uppercase tracking-wide">Zipcode</p>
+                                        <p className="font-medium text-gray-700">{updateUser.zipcode || "-"}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </Card>
+                    </div>
 
-                                                />
-                                            </div>
-                                            <div>
-                                                <Label htmlFor="lastName">Last Name</Label>
-                                                <Input
-                                                    id="lastName"
-                                                    type="lastName"
-                                                    placeholder="Enter Last Name"
-                                                    required
-                                                    className='mt-2'
-                                                    disabled={editable}
-                                                    name="lastName"
-                                                    value={updateUser.lastName}
-                                                    onChange={handleChange}
-                                                />
-                                            </div>
+                    {/* Right Column: Details Form */}
+                    <div className="md:w-2/3 flex-grow">
+                        <Card className="border-none shadow-lg">
+                            <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-white rounded-t-lg">
+                                <div>
+                                    <h3 className="text-lg font-semibold text-gray-900">Personal Information</h3>
+                                    <p className="text-sm text-gray-500">Manage your personal details</p>
+                                </div>
+                                <Button
+                                    onClick={toggleEdit}
+                                    variant={editable ? "default" : "secondary"}
+                                    size="sm"
+                                    className="gap-2"
+                                >
+                                    {editable ? (
+                                        <>
+                                            <Pencil className="w-4 h-4" /> Edit Profile
+                                        </>
+                                    ) : (
+                                        <>
+                                            <X className="w-4 h-4" /> Cancel
+                                        </>
+                                    )}
+                                </Button>
+                            </div>
 
-                                        </div>
-                                        <div className="grid gap-2">
-                                            <div className="flex items-center">
-                                                <Label htmlFor="Email">Email</Label>
-
-                                            </div>
+                            <CardContent className="p-6">
+                                <form onSubmit={handleSubmit} className="space-y-6">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="firstName" className="text-gray-600 flex items-center gap-2">
+                                                <UserIcon className="w-4 h-4" /> First Name
+                                            </Label>
                                             <Input
-                                                id="email"
-                                                type="email"
-                                                required
-                                                name="email"
-                                                disabled={editable}
-                                                value={updateUser.email}
+                                                id="firstName"
+                                                name="firstName"
+                                                value={updateUser.firstName}
                                                 onChange={handleChange}
-
+                                                disabled={editable}
+                                                className="focus-visible:ring-blue-500"
                                             />
                                         </div>
-                                        <div className="grid gap-2">
-                                            <div className="flex items-center">
-                                                <Label htmlFor="phone">Phone</Label>
-
-                                            </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="lastName" className="text-gray-600 flex items-center gap-2">
+                                                <UserIcon className="w-4 h-4" /> Last Name
+                                            </Label>
                                             <Input
-                                                id="phoneNo"
-                                                type="text"
-                                                required
-                                                name="phoneNo"
-                                                disabled={editable}
-                                                placeholder="Not Aviable , Please Update"
-                                                value={updateUser.phoneNo}
+                                                id="lastName"
+                                                name="lastName"
+                                                value={updateUser.lastName}
                                                 onChange={handleChange}
-
-
-                                            />
-                                        </div>
-                                        <div className="grid gap-2">
-                                            <div className="flex items-center">
-                                                <Label htmlFor="address">Address</Label>
-
-                                            </div>
-                                            <Input
-                                                id="address"
-                                                type="text"
-                                                required
-                                                name="address"
                                                 disabled={editable}
-                                                placeholder="Not Aviable , Please Update"
-                                                value={updateUser.address}
-                                                onChange={handleChange}
-
+                                                className="focus-visible:ring-blue-500"
                                             />
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-2 ">
-
-                                            <div className="">
-                                                <Label htmlFor="city">City</Label>
-                                                <Input
-                                                    id="city"
-                                                    type="text"
-                                                    placeholder="Enter City"
-                                                    required
-                                                    className='mt-2'
-                                                    disabled={editable}
-                                                    name="city"
-
-                                                    value={updateUser.city}
-                                                    onChange={handleChange}
-
-                                                />
-                                            </div>
-                                            <div>
-                                                <Label htmlFor="zipcode">Zipcode</Label>
-                                                <Input
-                                                    id="zipcode"
-                                                    type="text"
-                                                    placeholder="Enter Your zipcode"
-                                                    required
-                                                    className='mt-2'
-                                                    disabled={editable}
-                                                    name="zipcode"
-                                                    value={updateUser.zipcode}
-                                                    onChange={handleChange}
-                                                />
-                                            </div>
-
                                         </div>
                                     </div>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="email" className="text-gray-600 flex items-center gap-2">
+                                                <Mail className="w-4 h-4" /> Email Address
+                                            </Label>
+                                            <Input
+                                                id="email"
+                                                name="email"
+                                                type="email"
+                                                value={updateUser.email}
+                                                onChange={handleChange}
+                                                disabled={editable}
+                                                className="focus-visible:ring-blue-500"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="phoneNo" className="text-gray-600 flex items-center gap-2">
+                                                <Phone className="w-4 h-4" /> Phone Number
+                                            </Label>
+                                            <Input
+                                                id="phoneNo"
+                                                name="phoneNo"
+                                                value={updateUser.phoneNo}
+                                                onChange={handleChange}
+                                                disabled={editable}
+                                                placeholder="Add phone number"
+                                                className="focus-visible:ring-blue-500"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="address" className="text-gray-600 flex items-center gap-2">
+                                            <MapPin className="w-4 h-4" /> Address
+                                        </Label>
+                                        <Input
+                                            id="address"
+                                            name="address"
+                                            value={updateUser.address}
+                                            onChange={handleChange}
+                                            disabled={editable}
+                                            placeholder="Enter your street address"
+                                            className="focus-visible:ring-blue-500"
+                                        />
+                                    </div>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="city" className="text-gray-600 flex items-center gap-2">
+                                                <Building2 className="w-4 h-4" /> City
+                                            </Label>
+                                            <Input
+                                                id="city"
+                                                name="city"
+                                                value={updateUser.city}
+                                                onChange={handleChange}
+                                                disabled={editable}
+                                                className="focus-visible:ring-blue-500"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="zipcode" className="text-gray-600 flex items-center gap-2">
+                                                <MapPin className="w-4 h-4" /> Zipcode
+                                            </Label>
+                                            <Input
+                                                id="zipcode"
+                                                name="zipcode"
+                                                value={updateUser.zipcode}
+                                                onChange={handleChange}
+                                                disabled={editable}
+                                                className="focus-visible:ring-blue-500"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {!editable && (
+                                        <div className="pt-4 flex justify-end">
+                                            <Button
+                                                type="submit"
+                                                disabled={loading}
+                                                className="bg-blue-600 hover:bg-blue-700 text-white min-w-[120px]"
+                                            >
+                                                {loading ? "Saving..." : (
+                                                    <><Save className="w-4 h-4 mr-2" /> Save Changes</>
+                                                )}
+                                            </Button>
+                                        </div>
+                                    )}
                                 </form>
-
-
-                            </div>
-
-                        </CardContent>
-                        <CardFooter className="flex-col ">
-                            {!editable &&
-                                <Button type="submit" className="bg-gradient-to-r from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90%" onClick={handleSubmit}>
-                                    save
-                                </Button>
-                            }
-
-                        </CardFooter>
-                    </Card>
+                            </CardContent>
+                        </Card>
+                    </div>
                 </div>
-
-            </div>
-
-
-        </>
-
+            </main>
+        </div>
     )
 }

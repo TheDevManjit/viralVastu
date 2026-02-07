@@ -309,7 +309,7 @@ const logOut = async (req, res) => {
 }
 
 const forgotPassword = async (req, res) => {
-   
+
     try {
 
         const { email } = req.body;
@@ -611,4 +611,28 @@ const updateUser = async (req, res) => {
 
 }
 
-export { register, logIn, reVarify, logOut, resendOtp, forgotPassword, varifyOtp, changePassword, allUsers, updateUser }
+
+const deleteUser = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        await User.findByIdAndDelete(userId);
+
+        // Also delete session
+        await Session.deleteMany({ userId: userId });
+
+        res.status(200).json({
+            success: true,
+            message: "User deleted successfully",
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export { register, logIn, reVarify, logOut, resendOtp, forgotPassword, varifyOtp, changePassword, allUsers, updateUser, deleteUser }

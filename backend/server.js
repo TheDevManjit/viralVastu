@@ -6,6 +6,7 @@ import productRoute from "./routes/productRoute.js"
 import adminRoute from "./routes/adminRoute.js"
 import cartRoute from "./routes/cartRoute.js"
 import orderRoute from "./routes/orderRoute.js"
+import webSettingsRoute from './routes/webSettingsRoute.js'
 import compression from "compression";
 import cors from 'cors'
 import categoryRouter from './routes/categoryRoute.js'
@@ -46,19 +47,20 @@ app.use(compression());
 app.use(cors());
 
 
-app.use("/api/v1/user",userRoute)
-app.use("/api/v1/product",productRoute)
-app.use("/api/v1/category",categoryRouter)
-app.use("/api/v1/admin",adminRoute)
-app.use("/api/v1/cart",cartRoute)
-app.use("/api/v1/order",orderRoute)
+app.use("/api/v1/user", userRoute)
+app.use("/api/v1/product", productRoute)
+app.use("/api/v1/category", categoryRouter)
+app.use("/api/v1/admin", adminRoute)
+app.use("/api/v1/cart", cartRoute)
+app.use("/api/v1/order", orderRoute)
+app.use("/api/v1/websettings", webSettingsRoute)
 
 
 
 
 const startServer = async () => {
   try {
-    await connectDB(); 
+    await connectDB();
 
     app.listen(PORT, () => {
       console.log(`🚀 Server Ekdum Ok hai aur port ${PORT} hai`);

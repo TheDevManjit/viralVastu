@@ -8,21 +8,22 @@ import Users from "./pages/Users";
 import WebSettings from "./pages/WebSettings";
 import React from "react";
 import ProductAdd from "./pages/ProductAdd";
-import Text from "./pages/Text";
+import Overview from "./pages/Overview";
 import './App.css'
 import { createBrowserRouter, RouterProvider, Route, Routes, createRoutesFromElements } from 'react-router-dom'
+import { Toaster } from "@/components/ui/sonner";
 
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
-       
-       <Route path="/login" element={<LoginPage />} />
+
+      <Route path="/login" element={<LoginPage />} />
 
       {/* Protected Routes */}
       <Route element={<ProtectedRoute />}>
         <Route path="/" element={<Dashboard />}>
-          <Route index element={<Text />} />
+          <Route index element={<Overview />} />
           <Route path="orders" element={<Orders />} />
           <Route path="products" element={<Products />} />
           <Route path="product/:id" element={<ProductUpdate />} />
@@ -43,6 +44,7 @@ function App() {
     <>
 
       <RouterProvider router={router} />
+      <Toaster />
 
     </>
   )
