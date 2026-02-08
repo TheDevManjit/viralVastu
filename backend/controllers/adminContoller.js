@@ -5,14 +5,14 @@ import 'dotenv/config'
 import { Session } from "../models/sessionModel.js";
 
 
-async function adminLogin(req,res) {
+async function adminLogin(req, res) {
 
 
     try {
         const { email, password } = req.body
 
         if (!email || !password) {
-           return res.status(400).json({
+            return res.status(400).json({
                 success: false,
                 message: "All fields are required"
             })
@@ -21,16 +21,16 @@ async function adminLogin(req,res) {
         const user = await User.findOne({ email })
 
         if (!user) {
-          return  res.status(404).json({
+            return res.status(404).json({
                 success: false,
                 message: "user not found"
             })
         }
 
-        console.log("user is",user)
+
 
         if (user.role !== "admin") {
-          return   res.status(403).json({
+            return res.status(403).json({
                 success: false,
                 message: "Admin only"
             })
@@ -38,7 +38,7 @@ async function adminLogin(req,res) {
 
         const hashedPassword = user.password
 
-        const isMatched = await  bcrypt.compare(password, hashedPassword);
+        const isMatched = await bcrypt.compare(password, hashedPassword);
 
 
         if (!isMatched) {
@@ -87,7 +87,7 @@ async function adminLogin(req,res) {
 
 
     } catch (error) {
-       return res.status(400).json({
+        return res.status(400).json({
             success: false,
             message: error.message
         })
@@ -98,4 +98,4 @@ async function adminLogin(req,res) {
 
 }
 
-export {adminLogin}
+export { adminLogin }

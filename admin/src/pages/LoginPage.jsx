@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label"
 import { EyeOff, Eye, Loader2 } from "lucide-react";
 import { toast } from "sonner"
 import axios from "axios";
-import { useDispatch,} from "react-redux";
+import { useDispatch, } from "react-redux";
 import { setUser } from "@/redux/userSlice";
 
 
@@ -33,7 +33,7 @@ export default function LoginPage() {
     const [formData, setFormData] = useState({
         email: '',
         password: ''
-    }) 
+    })
     const dispatch = useDispatch()
 
 
@@ -49,7 +49,7 @@ export default function LoginPage() {
         }))
 
     }
-    
+
     const handleSubmit = async (e) => {
         e.preventDefault()
         console.log(formData)
@@ -63,15 +63,15 @@ export default function LoginPage() {
 
             if (res.data.success) {
                 dispatch(setUser(res.data.user))
-                localStorage.setItem('accessToken',res.data.accessToken)
+                localStorage.setItem('accessToken', res.data.accessToken)
                 navigate("/")
                 toast.success(res.data.message)
             }
 
         } catch (error) {
-           // console.log(error)
+            // console.log(error)
             toast.error(error.response.data.message)
-        }finally{
+        } finally {
             setLoading(false)
         }
 
@@ -79,19 +79,19 @@ export default function LoginPage() {
 
     return (
 
-        <div className="flex justify-center items-center min-h-screen bg-green-100">
+        <div className="flex justify-center items-center min-h-screen bg-skybrand-50">
             <Card className="w-full max-w-sm">
                 <CardHeader>
                     <CardTitle className="text-center"> Welcome </CardTitle>
                     <CardDescription className="text-center">
                         Enter given detils for Login
                     </CardDescription>
-                  
+
                 </CardHeader>
                 <CardContent>
 
                     <div className="flex flex-col gap-6">
-                        
+
                         <div className="grid gap-2">
                             <Label htmlFor="email">Email</Label>
                             <Input
@@ -131,10 +131,10 @@ export default function LoginPage() {
 
                 </CardContent>
                 <CardFooter className="flex-col gap-2">
-                    <Button type="submit" className="w-full cursor-pointer bg-green-700 hover:bg-green-500" onClick={handleSubmit}>
-                       {loading ?<><Loader2 className="h-4 w-4 animate-spin" /> Loading </> : "Log In"} 
+                    <Button type="submit" className="w-full cursor-pointer bg-skybrand-600 hover:bg-skybrand-500" onClick={handleSubmit}>
+                        {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Loading </> : "Log In"}
                     </Button>
-                   
+
                 </CardFooter>
             </Card>
         </div>

@@ -188,10 +188,10 @@ export default function SignupPage() {
                 </div>
 
                 <div className="relative z-10">
-                    <Link to="/" className="flex items-center gap-2 text-2xl font-bold tracking-tighter">
+                    {/* <Link to="/" className="flex items-center gap-2 text-2xl font-bold tracking-tighter">
                         <img src="/logo.png" alt="Logo" className="h-10 w-auto invert brightness-0 filter" />
                         ViralVastu
-                    </Link>
+                    </Link> */}
                 </div>
 
                 <div className="relative z-10 max-w-lg">

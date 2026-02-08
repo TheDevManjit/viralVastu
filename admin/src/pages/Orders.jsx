@@ -45,9 +45,7 @@ function Orders() {
 
   const handleStatusChange = async (id, newStatus) => {
     try {
-      console.log(`Updating status for ${id} to ${newStatus}`);
       const res = await updateOrderStatus(id, newStatus);
-      console.log("Update response:", res);
       if (res.data.success) {
         toast.success("Order status updated");
         fetchOrders();
@@ -69,21 +67,24 @@ function Orders() {
   const columns = [
     { field: 'sn', headerName: 'SN', width: 70 },
     { field: 'orderId', headerName: 'Order ID', width: 220 },
-    { field: 'customer', headerName: 'Customer Name', width: 200 },
-    { field: 'amount', headerName: 'Amount', width: 120, renderCell: (params) => `₹${params.value}` },
+    { field: 'customer', headerName: 'Customer', width: 160 },
+    { field: 'email', headerName: 'Email', width: 220 },
+    { field: 'phone', headerName: 'Phone', width: 130 },
+    { field: 'address', headerName: 'Shipping Address', width: 300 },
+    { field: 'amount', headerName: 'Amount', width: 110, renderCell: (params) => `₹${params.value}` },
     { field: 'date', headerName: 'Date', width: 180 },
     {
       field: 'status',
       headerName: 'Status',
-      width: 180,
+      width: 150,
       renderCell: (params) => (
         <Select
           defaultValue={params.value}
           onValueChange={(value) => handleStatusChange(params.row._id, value)}
         >
-          <SelectTrigger className={`w-[140px] ${params.value === 'Completed' ? 'text-green-600 border-green-200 bg-green-50' :
+          <SelectTrigger className={`w-[130px] h-8 text-xs ${params.value === 'Completed' ? 'text-green-600 border-green-200 bg-green-50' :
             params.value === 'Pending' ? 'text-yellow-600 border-yellow-200 bg-yellow-50' :
-              'text-blue-600'
+              'text-skybrand-600'
             }`}>
             <SelectValue placeholder="Status" />
           </SelectTrigger>
@@ -100,27 +101,37 @@ function Orders() {
     },
     {
       field: 'actions',
-      headerName: 'Actions',
-      width: 100,
+      headerName: 'Details',
+      width: 80,
       renderCell: (params) => (
         <Button variant="ghost" size="icon" onClick={() => handleViewDetails(params.row.rawOrder)}>
-          <Eye className="w-5 h-5 text-gray-500" />
+          <Eye className="w-4 h-4 text-skybrand-500" />
         </Button>
       ),
     }
   ];
 
-  const rows = orders.map((order, index) => ({
-    id: order._id,
-    _id: order._id,
-    sn: index + 1,
-    orderId: order._id,
-    customer: order.shippingAddress ? `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}` : order.user_id,
-    amount: order.amount,
-    status: order.status,
-    date: new Date(order.createdAt).toLocaleDateString() + ' ' + new Date(order.createdAt).toLocaleTimeString(),
-    rawOrder: order
-  }));
+  const rows = orders.map((order, index) => {
+    const sAddr = order?.shippingAddress || {};
+    const firstName = sAddr.firstName || "N/A";
+    const lastName = sAddr.lastName || "";
+    const customerName = (firstName === "N/A" && !lastName) ? "N/A" : `${firstName} ${lastName}`.trim();
+
+    return {
+      id: order?._id || `temp-${index}`,
+      _id: order?._id,
+      sn: index + 1,
+      orderId: order?._id || "N/A",
+      customer: customerName,
+      email: sAddr.email || "N/A",
+      phone: sAddr.phoneNumber || "N/A",
+      address: sAddr.address ? `${sAddr.address}, ${sAddr.city || ""} - ${sAddr.zipcode || ""}`.replace(/, - $/, "").trim() : "N/A",
+      amount: order?.amount || 0,
+      status: order?.status || "Pending",
+      date: order?.createdAt ? new Date(order.createdAt).toLocaleDateString() + ' ' + new Date(order.createdAt).toLocaleTimeString() : "N/A",
+      rawOrder: order
+    };
+  });
 
   return (
     <div className="p-6 bg-white rounded-lg shadow-md m-4">
@@ -155,15 +166,15 @@ function Orders() {
               <div className="flex justify-between items-center bg-gray-50 p-4 rounded-lg">
                 <div>
                   <span className="text-sm text-gray-500">Order ID</span>
-                  <p className="font-mono font-medium">{selectedOrder._id}</p>
+                  <p className="font-mono font-medium">{selectedOrder._id || "N/A"}</p>
                 </div>
                 <div>
                   <span className="text-sm text-gray-500">Validation Status</span>
-                  <p className="font-medium">{selectedOrder.status}</p>
+                  <p className="font-medium">{selectedOrder.status || "N/A"}</p>
                 </div>
                 <div>
                   <span className="text-sm text-gray-500">Total Amount</span>
-                  <p className="font-bold text-lg">₹{selectedOrder.amount}</p>
+                  <p className="font-bold text-lg">₹{selectedOrder.amount || 0}</p>
                 </div>
               </div>
 
@@ -173,13 +184,13 @@ function Orders() {
                   <h3 className="font-semibold mb-3">Shipping Information</h3>
                   {selectedOrder.shippingAddress ? (
                     <div className="space-y-1 text-sm">
-                      <p className="font-medium">{selectedOrder.shippingAddress.firstName} {selectedOrder.shippingAddress.lastName}</p>
-                      <p>{selectedOrder.shippingAddress.email}</p>
-                      <p>{selectedOrder.shippingAddress.phoneNumber}</p>
+                      <p className="font-medium">{(selectedOrder.shippingAddress.firstName || "N/A") + " " + (selectedOrder.shippingAddress.lastName || "")}</p>
+                      <p>{selectedOrder.shippingAddress.email || "N/A"}</p>
+                      <p>{selectedOrder.shippingAddress.phoneNumber || "N/A"}</p>
                       <hr className="my-2" />
-                      <p>{selectedOrder.shippingAddress.address}</p>
-                      <p>{selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.zipcode}</p>
-                      <p>{selectedOrder.shippingAddress.country}</p>
+                      <p>{selectedOrder.shippingAddress.address || "N/A"}</p>
+                      <p>{selectedOrder.shippingAddress.city || "N/A"}, {selectedOrder.shippingAddress.zipcode || "N/A"}</p>
+                      <p>{selectedOrder.shippingAddress.country || "India"}</p>
                     </div>
                   ) : (
                     <p className="text-gray-500 italic">No shipping address provided.</p>
@@ -190,24 +201,26 @@ function Orders() {
                 <div className="border p-4 rounded-lg">
                   <h3 className="font-semibold mb-3">Ordered Items</h3>
                   <div className="space-y-4">
-                    {selectedOrder.products && selectedOrder.products.map((item, idx) => (
+                    {selectedOrder.products && selectedOrder.products.length > 0 ? selectedOrder.products.map((item, idx) => (
                       <div key={idx} className="flex gap-4 items-center">
                         <div className="w-12 h-12 bg-gray-100 rounded border overflow-hidden">
                           {item.image ? (
-                            <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                            <img src={item.image} alt={item.name || "Product"} className="w-full h-full object-cover" />
                           ) : (
                             <div className="flex items-center justify-center w-full h-full text-xs text-gray-400">No Img</div>
                           )}
                         </div>
                         <div className="text-sm">
-                          <p className="font-medium line-clamp-1">{item.name}</p>
-                          <p className="text-gray-500">Qty: {item.quantity} x ₹{item.price}</p>
+                          <p className="font-medium line-clamp-1">{item.name || "Unnamed Product"}</p>
+                          <p className="text-gray-500">Qty: {item.quantity || 1} x ₹{item.price || 0}</p>
                         </div>
                         <div className="ml-auto font-medium">
-                          ₹{item.quantity * item.price}
+                          ₹{(item.quantity || 1) * (item.price || 0)}
                         </div>
                       </div>
-                    ))}
+                    )) : (
+                      <p className="text-sm text-gray-500 italic">No products listed.</p>
+                    )}
                   </div>
                 </div>
               </div>

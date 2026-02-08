@@ -1,11 +1,12 @@
 
-export  const isAdmin = (req,res,next) =>{
+export const isAdmin = (req, res, next) => {
 
-    if(req.user && req.user.role === 'admin') {
+    if (req.user && req.user.role === 'admin') {
         next()
-    }else {
+    } else {
+        console.error("isAdmin: Access denied. User role:", req.user?.role);
         return res.status(403).json({
-            message:"Access denied : admins only"
+            message: "Access denied : admins only"
         })
     }
 

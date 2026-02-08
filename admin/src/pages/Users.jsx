@@ -108,7 +108,7 @@ function Users() {
         <div className="flex gap-4 items-center h-full">
           <button
             onClick={() => handleEditClick(params.row)}
-            className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
+            className="text-skybrand-600 hover:text-skybrand-800 flex items-center gap-1 font-medium transition-colors"
           >
             <Edit size={16} /> Edit
           </button>

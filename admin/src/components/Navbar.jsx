@@ -42,45 +42,45 @@ const Navbar = ({ classes }) => {
         }
     }
 
-  
 
-   
+
+
 
 
 
     return (
-        <nav className={`${classes} bg-white/90 backdrop-blur-sm border-b border-green-100   shadow-sm`}>
+        <nav className={`${classes} bg-white/90 backdrop-blur-sm border-b border-skybrand-100   shadow-sm`}>
             <div className="max-w-[1350px] mx-auto px-4 sm:px-6 lg:px-8 relative">
                 <div className="flex justify-between items-center h-16">
                     <div>
-                        <h3 className="text-sky-400 text-3xl">Welcome : <span className="text-2xl">{user.firstName + " " + user.lastName}</span></h3>
+                        <h3 className="text-skybrand-400 text-3xl">Welcome : <span className="text-2xl">{user?.firstName + " " + user?.lastName}</span></h3>
                     </div>
                     <div className="absolute right-10">
 
-                        
-                         {
+
+                        {
 
 
-                        user ?
-                            <Link
+                            user ?
+                                <Link
 
-                                className="text-gray-700 hover:text-green-600 border border-transparent transition font-medium cursor-pointer  rounded p-1  "
-                            >
-                                <Button className="bg-red-300 cursor-pointer text-black hover:bg-red-500" onClick={logoutHandler}> logout </Button>
-                            </Link>
-                            :
+                                    className="text-gray-700 hover:text-skybrand-600 border border-transparent transition font-medium cursor-pointer  rounded p-1  "
+                                >
+                                    <Button className="bg-red-300 cursor-pointer text-black hover:bg-red-500" onClick={logoutHandler}> logout </Button>
+                                </Link>
+                                :
 
-                            <Link
-                                to="/login"
-                                className="text-gray-700 hover:text-green-600  "
-                            >
-                                <Button className="bg-green-200 cursor-pointer text-black hover:bg-green-500" > LogIn</Button>
-                            </Link>
-                    }
+                                <Link
+                                    to="/login"
+                                    className="text-gray-700 hover:text-skybrand-600  "
+                                >
+                                    <Button className="bg-skybrand-200 cursor-pointer text-black hover:bg-skybrand-500" > LogIn</Button>
+                                </Link>
+                        }
 
 
                     </div>
-                   
+
 
 
 
@@ -90,7 +90,7 @@ const Navbar = ({ classes }) => {
                     <div className="md:hidden flex items-center">
                         <button
                             onClick={() => setOpen(!open)}
-                            className="text-green-700 hover:text-green-600 transition"
+                            className="text-skybrand-700 hover:text-skybrand-600 transition"
                         >
                             {open ? <X size={26} /> : <Menu size={26} />}
                         </button>
@@ -100,12 +100,12 @@ const Navbar = ({ classes }) => {
 
             {/* Mobile Dropdown */}
             {open && (
-                <div className="md:hidden bg-white/95 backdrop-blur-sm border-t border-green-100 shadow-sm transition-all duration-300">
+                <div className="md:hidden bg-white/95 backdrop-blur-sm border-t border-skybrand-100 shadow-sm transition-all duration-300">
                     <div className="flex flex-col items-center space-y-4 py-4">
                         <Link
                             to="/dashboard"
                             onClick={() => setOpen(false)}
-                            className="text-gray-700 hover:text-green-600 font-medium transition "
+                            className="text-gray-700 hover:text-skybrand-600 font-medium transition "
                         >
                             Dashboard
                         </Link>
@@ -113,7 +113,7 @@ const Navbar = ({ classes }) => {
                         <Link
                             to="/contact"
                             onClick={() => setOpen(false)}
-                            className="text-gray-700 hover:text-green-600 font-medium transition"
+                            className="text-gray-700 hover:text-skybrand-600 font-medium transition"
                         >
                             Contact Us
                         </Link>
@@ -122,7 +122,7 @@ const Navbar = ({ classes }) => {
                             <Link
                                 to="/profile"
                                 onClick={() => setOpen(false)}
-                                className="flex items-center gap-2 text-gray-700 hover:text-green-600"
+                                className="flex items-center gap-2 text-gray-700 hover:text-skybrand-600"
                             >
                                 <UserRound size={18} />
                                 <span>Profile</span>
@@ -132,7 +132,7 @@ const Navbar = ({ classes }) => {
                         <Link
                             to="/cart"
                             onClick={() => setOpen(false)}
-                            className="flex items-center gap-2 text-gray-700 hover:text-green-600"
+                            className="flex items-center gap-2 text-gray-700 hover:text-skybrand-600"
                         >
                             <ShoppingCart size={20} />
                             <span>Cart (1)</span>

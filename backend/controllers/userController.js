@@ -482,7 +482,7 @@ const allUsers = async (req, res) => {
 
         return res.status(200).json({
             success: true,
-            message: "All users fetch successfullt",
+            message: "All users fetch successfully",
             users: users
         })
 

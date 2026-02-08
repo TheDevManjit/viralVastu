@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { getAllOrders } from '../api/orderApi';
 import { getAllUsers } from '../api/userApi';
 import { toast } from 'sonner';
@@ -54,7 +55,7 @@ function Overview() {
     }, []);
 
     if (loading) {
-        return <div className="flex justify-center items-center h-full min-h-[400px]"><Loader2 className="animate-spin w-10 h-10 text-blue-500" /></div>
+        return <div className="flex justify-center items-center h-full min-h-[400px]"><Loader2 className="animate-spin w-10 h-10 text-skybrand-600" /></div>
     }
 
     // Prepare Data for Charts
@@ -86,35 +87,41 @@ function Overview() {
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div className="bg-white p-6 rounded-xl shadow-md flex items-center gap-4 transition-transform hover:scale-105">
-                    <div className="p-4 bg-green-100 text-green-600 rounded-full">
-                        <DollarSign size={32} />
+                <Link to="/orders" className="block">
+                    <div className="bg-white p-6 rounded-xl shadow-md flex items-center gap-4 transition-transform hover:scale-105 cursor-pointer">
+                        <div className="p-4 bg-green-100 text-green-600 rounded-full">
+                            <DollarSign size={32} />
+                        </div>
+                        <div>
+                            <p className="text-gray-500 text-sm">Total Revenue</p>
+                            <h2 className="text-3xl font-bold text-gray-800">₹{stats.totalRevenue.toLocaleString()}</h2>
+                        </div>
                     </div>
-                    <div>
-                        <p className="text-gray-500 text-sm">Total Revenue</p>
-                        <h2 className="text-3xl font-bold text-gray-800">₹{stats.totalRevenue.toLocaleString()}</h2>
-                    </div>
-                </div>
+                </Link>
 
-                <div className="bg-white p-6 rounded-xl shadow-md flex items-center gap-4 transition-transform hover:scale-105">
-                    <div className="p-4 bg-blue-100 text-blue-600 rounded-full">
-                        <ShoppingBag size={32} />
+                <Link to="/orders" className="block">
+                    <div className="bg-white p-6 rounded-xl shadow-md flex items-center gap-4 transition-transform hover:scale-105 cursor-pointer">
+                        <div className="p-4 bg-skybrand-100 text-skybrand-600 rounded-full">
+                            <ShoppingBag size={32} />
+                        </div>
+                        <div>
+                            <p className="text-gray-500 text-sm">Total Orders</p>
+                            <h2 className="text-3xl font-bold text-gray-800">{stats.totalOrders}</h2>
+                        </div>
                     </div>
-                    <div>
-                        <p className="text-gray-500 text-sm">Total Orders</p>
-                        <h2 className="text-3xl font-bold text-gray-800">{stats.totalOrders}</h2>
-                    </div>
-                </div>
+                </Link>
 
-                <div className="bg-white p-6 rounded-xl shadow-md flex items-center gap-4 transition-transform hover:scale-105">
-                    <div className="p-4 bg-purple-100 text-purple-600 rounded-full">
-                        <Users size={32} />
+                <Link to="/users" className="block">
+                    <div className="bg-white p-6 rounded-xl shadow-md flex items-center gap-4 transition-transform hover:scale-105 cursor-pointer">
+                        <div className="p-4 bg-purple-100 text-purple-600 rounded-full">
+                            <Users size={32} />
+                        </div>
+                        <div>
+                            <p className="text-gray-500 text-sm">Total Users</p>
+                            <h2 className="text-3xl font-bold text-gray-800">{stats.totalUsers}</h2>
+                        </div>
                     </div>
-                    <div>
-                        <p className="text-gray-500 text-sm">Total Users</p>
-                        <h2 className="text-3xl font-bold text-gray-800">{stats.totalUsers}</h2>
-                    </div>
-                </div>
+                </Link>
             </div>
 
             {/* Charts Section */}
@@ -123,7 +130,7 @@ function Overview() {
                 {/* Revenue Chart */}
                 <div className="bg-white p-6 rounded-xl shadow-md">
                     <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                        <TrendingUp size={20} className="text-blue-500" /> Revenue Trend
+                        <TrendingUp size={20} className="text-skybrand-500" /> Revenue Trend
                     </h3>
                     <div className="h-[300px]">
                         <ResponsiveContainer width="100%" height="100%">

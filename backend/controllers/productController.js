@@ -23,10 +23,6 @@ const addProduct = async (req, res) => {
 
         //  console.log(productName, productDescription, "Price", productPrice, productCategory, productStock)
 
-        // console.log("productStock", productStock)
-
-        console.log(productCategory)
-
 
         if (!productName || !productDescription || !productPrice || !productCategory || !productStock) {
             return res.status(400).json({
@@ -101,31 +97,103 @@ const addProduct = async (req, res) => {
 }
 
 const getAllProducts = async (req, res) => {
-
     try {
-        const products = await Product.find().sort({ createdAt: -1 });
+        const { keyword, category, brand, priceMin, priceMax, sort, page = 1, limit = 10 } = req.query;
+
+        console.log("Query Params:", req.query);
+
+        let query = {};
+
+        // 1. Search (Keyword)
+        if (keyword) {
+            query.$or = [
+                { productName: { $regex: keyword, $options: "i" } },
+                { productDescription: { $regex: keyword, $options: "i" } },
+                { productBrand: { $regex: keyword, $options: "i" } },
+                { productCategory: { $regex: keyword, $options: "i" } },
+            ];
+        }
+
+        // 2. Filter by Category
+        if (category && category !== "All") {
+            // Handle comma-separated categories if needed, or single category
+            const categories = category.split(",").map(c => c.trim());
+            if (categories.length > 0 && categories[0] !== "") {
+                query.productCategory = { $in: categories.map(c => new RegExp(c, "i")) };
+            }
+        }
+
+        // 3. Filter by Brand
+        if (brand && brand !== "All") {
+            query.productBrand = { $regex: brand, $options: "i" };
+        }
+
+        // 4. Filter by Price Range
+        if (priceMin || priceMax) {
+            query.productPrice = {};
+            if (priceMin) query.productPrice.$gte = Number(priceMin);
+            if (priceMax) query.productPrice.$lte = Number(priceMax);
+        }
+
+        // 5. Sorting
+        let sortOption = { createdAt: -1 }; // Default: Newest first
+        if (sort === "priceLowToHigh") {
+            sortOption = { productPrice: 1 };
+        } else if (sort === "priceHighToLow") {
+            sortOption = { productPrice: -1 };
+        } else if (sort === "newest") {
+            sortOption = { createdAt: -1 };
+        } else if (sort === "oldest") {
+            sortOption = { createdAt: 1 };
+        }
+
+
+        // 6. Pagination (Optional, but good for scalability)
+        // For now, we might return all matching products to keep frontend logic simple if pagination isn't requested yet.
+        // But let's support it if passed.
+        const pageNum = Number(page);
+        const limitNum = Number(limit);
+        const skip = (pageNum - 1) * limitNum;
+
+        // If limit is incredibly high or not strictly used in frontend yet, we can skip limit to return all
+        // to match previous behavior if no pagination params are sent. 
+        // However, standard practice is to paginate. 
+        // Let's return all if no limit is specified to allow frontend processing found in previous code, 
+        // OR standard pagination.
+
+        // To maintain backward compatibility with the frontend that might expect all products:
+        // We will fetch ALL matching products if no limit is explicitly provided or if limit is large.
+
+        let productsQuery = Product.find(query).sort(sortOption);
+
+        // Uncomment below to enable strict server-side pagination
+        // productsQuery = productsQuery.skip(skip).limit(limitNum);
+
+        const products = await productsQuery;
+        const totalProducts = await Product.countDocuments(query);
 
 
         if (!products) {
             return res.status(404).json({
                 success: false,
-                message: "No products found"
-            })
+                message: "No products found",
+            });
         }
 
         res.status(200).json({
             success: true,
             count: products.length,
+            total: totalProducts,
             products: products,
+            page: pageNum,
+            pages: Math.ceil(totalProducts / limitNum)
         });
 
-        // console.log(products)
-
     } catch (error) {
+        console.error("Error in getAllProducts:", error);
         res.status(500).json({ success: false, message: error.message });
     }
-
-}
+};
 
 const getProductById = async (req, res) => {
     try {
@@ -174,7 +242,7 @@ const updateProduct = async (req, res) => {
         } = req.body;
 
 
-        console.log(productCategory );
+        console.log(productCategory);
         // finding products
 
         const product = await Product.findById(id)
@@ -309,4 +377,19 @@ const deleteProduct = async (req, res) => {
 
 
 
-export { addProduct, getAllProducts, getProductById, updateProduct, deleteProduct }
+const getFilterOptions = async (req, res) => {
+    try {
+        const brands = await Product.distinct("productBrand");
+        const categories = await Product.distinct("productCategory");
+
+        res.status(200).json({
+            success: true,
+            brands,
+            categories
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+}
+
+export { addProduct, getAllProducts, getProductById, updateProduct, deleteProduct, getFilterOptions }

@@ -1,4 +1,4 @@
-import React, { use } from 'react'
+import React from 'react'
 import Box from '@mui/material/Box';
 import { DataGrid } from '@mui/x-data-grid';
 import { Link } from 'react-router-dom';
@@ -20,85 +20,90 @@ import { setProducts } from '@/redux/productSlice';
 
 
 function ProductList() {
-    
+
     const { products } = useSelector(store => store.products);
     const dispatch = useDispatch()
 
     const columns = [
-        { field: 'SN', headerName: 'SN', width: 90 },
-        { field: 'id', headerName: 'id', width: 90 },
-
+        { field: 'SN', headerName: 'SN', width: 60 },
+        {
+            field: 'productImg',
+            headerName: 'Image',
+            width: 80,
+            renderCell: (params) => (
+                <div className="flex items-center justify-center h-full">
+                    {params.row.productImg?.[0] ? (
+                        <img
+                            src={params.row.productImg[0].url}
+                            alt="thumb"
+                            className="w-10 h-10 object-cover rounded shadow-sm"
+                        />
+                    ) : (
+                        <div className="w-10 h-10 bg-gray-100 rounded" />
+                    )}
+                </div>
+            )
+        },
         {
             field: 'productName',
             headerName: 'Product name',
-            width: 150,
+            width: 250,
             editable: false,
         },
-
         {
-            field: 'Category',
+            field: 'productCategory',
             headerName: 'Category',
-            type: 'number',
-            width: 110,
-            editable: true,
+            width: 150,
+            renderCell: (params) => (
+                <div className="flex flex-wrap gap-1">
+                    {Array.isArray(params.value) ? params.value.join(", ") : params.value}
+                </div>
+            )
         },
-
-
         {
-            field: 'Brand',
+            field: 'productBrand',
             headerName: 'Brand',
-            width: 160,
-            sortable: false,
-            // valueGetter: (value, row) => `${row.firstName || ''} ${row.lastName || ''}`,  // combine first and last name
-        },
-
-        // Clickable details link
-        {
-            field: "details",
-            headerName: "Details",
-            width: 160,
-            sortable: false,
-            renderCell: (params) => (
-                <Link
-                    to={`/product/${params.row.id}`}
-                    className="text-blue-500 underline cursor-pointer"
-                >
-                    View/Update Details
-                </Link>
-            ),
+            width: 130,
         },
         {
-            field: "Delete",
-            headerName: "Delete",
-            width: 160,
-            sortable: false,
-            renderCell: (params) => (
-                <Link
-
-                    className="text-blue-500 underline cursor-pointer flex items-center gap-2"
-                    onClick={() => handleDelete(params.row.id)}
-                >
-                    <Trash />  Delete
-                </Link>
-            ),
-        },
-
-         {
             field: 'productStock',
             headerName: 'Stock',
             type: 'number',
-            width: 110,
-            editable: true,
+            width: 100,
         },
+        {
+            field: "actions",
+            headerName: "Actions",
+            width: 200,
+            sortable: false,
+            renderCell: (params) => (
+                <div className="flex gap-4 items-center h-full">
+                    <Link
+                        to={`/product/${params.row._id}`}
+                        className="text-skybrand-600 hover:text-skybrand-800 font-medium transition-colors"
+                    >
+                        Edit
+                    </Link>
+                    <button
+                        onClick={() => handleDelete(params.row._id)}
+                        className="text-red-600 hover:text-red-800 font-medium transition-colors flex items-center gap-1"
+                    >
+                        <Trash size={16} /> Delete
+                    </button>
+                </div>
+            ),
+        }
     ];
 
 
     const rows = products.map((product, index) => ({
+        id: product._id, // DataGrid needs this
+        _id: product._id,
         SN: index + 1,
-        id: product._id,
+        productImg: product.productImg,
         productName: product.productName,
-        Category: product.category,
-        Brand: product.brand,
+        productCategory: product.productCategory,
+        productBrand: product.productBrand,
         productStock: product.productStock,
     }));
 

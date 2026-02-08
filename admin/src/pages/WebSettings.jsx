@@ -92,7 +92,7 @@ function WebSettings() {
             {/* Current Hero Image Display */}
             <div className="space-y-2">
               <Label>Current Hero Image</Label>
-              <div className="border_2 border-dashed border-gray-300 rounded-lg p-2 bg-gray-50 flex justify-center items-center min-h-[200px]">
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-2 bg-gray-50 flex justify-center items-center min-h-[200px]">
                 {settings.heroImage ? (
                   <img
                     src={settings.heroImage}
@@ -111,9 +111,9 @@ function WebSettings() {
             {/* Upload New Image */}
             <div className="space-y-4">
               <Label htmlFor="hero-upload" className="cursor-pointer">
-                <div className="border-2 border-dashed border-blue-300 hover:border-blue-500 rounded-lg p-8 flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 transition-colors cursor-pointer">
-                  <UploadCloud className="w-10 h-10 text-blue-500 mb-2" />
-                  <span className="text-blue-600 font-medium">Click to upload new image</span>
+                <div className="border-2 border-dashed border-skybrand-200 hover:border-skybrand-400 rounded-lg p-8 flex flex-col items-center justify-center bg-skybrand-50 hover:bg-skybrand-100 transition-colors cursor-pointer">
+                  <UploadCloud className="w-10 h-10 text-skybrand-500 mb-2" />
+                  <span className="text-skybrand-600 font-medium">Click to upload new image</span>
                   <span className="text-xs text-gray-500 mt-1">Supports JPG, PNG, WEBP</span>
                 </div>
                 <Input
@@ -142,7 +142,7 @@ function WebSettings() {
               <Button
                 onClick={handleUpdate}
                 disabled={loading || !imageFile}
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto bg-skybrand-600 hover:bg-skybrand-700 text-white"
               >
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {loading ? "Updating..." : "Save Changes"}
