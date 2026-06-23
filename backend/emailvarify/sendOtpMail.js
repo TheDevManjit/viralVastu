@@ -1,49 +1,57 @@
 import { Resend } from "resend";
-import "dotenv/config";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const sendOtpMail = async (email, otp) => {
   try {
-    const response = await resend.emails.send({
-      from: `viralvastu <noreply@teachmark.in>`, 
-      to: email,
+    const { data, error } = await resend.emails.send({
+      from: "ViralVastu <onboarding@resend.dev>", // testing only
+      to: [email],
       subject: "OTP Verification - ViralVastu",
       html: `
-        <div style="font-family: Arial, sans-serif; background:#f9fafb; padding:20px;">
-          <div style="max-width:500px; margin:auto; background:#ffffff; padding:20px; border-radius:8px;">
-            
-            <h2 style="color:#111827;">OTP Verification</h2>
-
-            <p style="font-size:15px; color:#374151;">
-              Use the OTP below to verify your email address:
-            </p>
-
-            <h1 style="letter-spacing:4px; text-align:center; color:#4f46e5;">
-              ${otp}
-            </h1>
-
-            <p style="font-size:13px; color:#6b7280; margin-top:20px;">
-              This OTP is valid for <b>10 minutes</b>.  
-              If you didn’t request this, please ignore this email.
-            </p>
-
-            <hr style="margin:20px 0;" />
-
-            <p style="font-size:12px; color:#9ca3af; text-align:center;">
-              © ${new Date().getFullYear()} ViralVastu
-            </p>
-
+        <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto; padding:20px;">
+          <h2>Verify Your Email</h2>
+          
+          <p>Your OTP code is:</p>
+          
+          <div style="
+            font-size:32px;
+            font-weight:bold;
+            letter-spacing:5px;
+            text-align:center;
+            background:#f3f4f6;
+            padding:15px;
+            border-radius:8px;
+            margin:20px 0;
+          ">
+            ${otp}
           </div>
+
+          <p>This OTP will expire in 10 minutes.</p>
+
+          <p>If you didn't request this OTP, please ignore this email.</p>
+
+          <hr />
+
+          <p style="color:#6b7280;font-size:12px;">
+            © ${new Date().getFullYear()} ViralVastu
+          </p>
         </div>
       `,
     });
 
-    console.log("✅ OTP email sent via Resend:", response.data?.id);
-    return true;
+    if (error) {
+      console.error("Resend Error:", error);
+      return false;
+    }
 
-  } catch (error) {
-    console.error("❌ OTP email failed:", error?.message || error);
+    console.log("Email Sent:", data?.id);
+    return true;
+  } catch (err) {
+    console.error("Email Failed:", err);
     return false;
   }
 };
