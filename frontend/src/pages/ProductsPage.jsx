@@ -30,16 +30,12 @@ export default function ProductsPage() {
   const [search, setSearch] = useState('');
 
   useEffect(() => {
-
     const queryParams = new URLSearchParams(location.search);
-    const searchQuery = queryParams.get("search") || '';
+    const searchQuery = queryParams.get("search") || "";
 
-    setSearch(searchQuery.toLowerCase());
-
-    console.log("search quary", searchQuery)
+    setSearch(searchQuery.trim().toLowerCase());
     setBrand("All");
-    setCategory(searchQuery)
-
+    setCategory(searchQuery.trim() || "All");
   }, [location.search]);
 
 
@@ -81,20 +77,25 @@ export default function ProductsPage() {
 
 
   if (search) {
-    filteredProducts = products
-      ?.filter((prod) => {
+    const searchTerms = search
+      .split(/[,]/)
+      .map((term) => term.trim().toLowerCase())
+      .filter(Boolean);
 
-        const categoriesInLowerCase = prod.productCategory.map(cat => cat.toLowerCase())
-        console.log(categoriesInLowerCase)
-        // console.log("search", search.split(/[,]/))
-        const searchArray = search.split(/[,]/).map(term => term.trim().toLowerCase());
+    filteredProducts = filteredProducts?.filter((prod) => {
+      const name = prod.productName?.toLowerCase() || "";
+      const brandLower = prod.productBrand?.toLowerCase() || "";
+      const categoriesInLowerCase = Array.isArray(prod.productCategory)
+        ? prod.productCategory.map((cat) => cat.toLowerCase())
+        : [];
 
-        return searchArray.some(searchTerm =>
-          categoriesInLowerCase.includes(searchTerm))
-
-
-      })
-
+      return searchTerms.some(
+        (term) =>
+          name.includes(term) ||
+          brandLower.includes(term) ||
+          categoriesInLowerCase.some((cat) => cat.includes(term))
+      );
+    });
   }
 
 

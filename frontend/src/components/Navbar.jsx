@@ -92,15 +92,7 @@ const Navbar = () => {
   }, [search, allProducts]);
 
   const handleSelectSuggestion = (item) => {
-    const firstCat = Array.isArray(item.productCategory)
-      ? item.productCategory[0]
-      : "";
-    const destinationValue =
-      firstCat?.toLowerCase().includes(search.trim().toLowerCase()) && firstCat
-        ? firstCat
-        : item.productName;
-
-    navigate(`/products?search=${encodeURIComponent(destinationValue)}`);
+    navigate(`/product/${item._id}`);
     setSuggestions([]);
     setDrawerOpen(false);
   };
@@ -158,6 +150,12 @@ const Navbar = () => {
                 placeholder="Search for products..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && search.trim()) {
+                    navigate(`/products?search=${encodeURIComponent(search.trim())}`);
+                    setSuggestions([]);
+                  }
+                }}
               />
               <SearchIcon className="absolute left-3 top-2.5 w-5 h-5" />
 
@@ -387,7 +385,7 @@ const Navbar = () => {
               onChange={(e) => setSearch(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && search.trim()) {
-                  navigate(`/product?search=${encodeURIComponent(search.trim())}`);
+                  navigate(`/products?search=${encodeURIComponent(search.trim())}`);
                   setDrawerOpen(false);
                   setSuggestions([]);
                 }
